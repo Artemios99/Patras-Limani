@@ -62,4 +62,38 @@ public class AuthService {
         return false;
     }
 }
+
+    public User getUserByLogin(String username, String password, String userType) {
+
+    String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND user_type = ?";
+
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setString(1, username);
+        pstmt.setString(2, password);
+        pstmt.setString(3, userType);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            return new User(
+                    rs.getInt("id"),
+                    rs.getString("user_type"),
+                    rs.getString("name"),
+                    rs.getString("surname"),
+                    rs.getString("phone"),
+                    rs.getString("email"),
+                    rs.getString("date_of_birth"),
+                    rs.getString("username"),
+                    rs.getString("password")
+            );
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return null;
+}
 }
