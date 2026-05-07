@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 public class PortEntryRequestService {
 
-    public boolean createRequest(PortEntryRequest request) {
+    public boolean createRequest(PortEntryRequests request) {
 
         String sql = "INSERT INTO port_entry_requests " +
                 "(ship_id, captain_id, arrival_date, status) " +
