@@ -6,12 +6,13 @@ public class CaptainDashboard extends JFrame {
     public CaptainDashboard(User user) {
 
         setTitle("Captain Dashboard");
-        setSize(700, 500);
+        setSize(700, 550);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         Color backgroundColor = new Color(10, 35, 66);
         Color buttonColor = new Color(0, 119, 182);
+        Color logcolor = new Color(255, 1, 1);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(backgroundColor);
@@ -24,7 +25,7 @@ public class CaptainDashboard extends JFrame {
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 28));
 
-        JPanel menuPanel = new JPanel(new GridLayout(4, 1, 15, 15));
+        JPanel menuPanel = new JPanel(new GridLayout(5, 1, 15, 15));
         menuPanel.setBorder(BorderFactory.createEmptyBorder(50, 180, 50, 180));
         menuPanel.setBackground(backgroundColor);
 
@@ -40,10 +41,36 @@ public class CaptainDashboard extends JFrame {
         JButton viewShipStatusButton =
                 createButton("View Ship Status", buttonColor);
 
+        JButton logoutButton =
+                createButton("Logout", logcolor);
+
+        registerShipButton.addActionListener(e -> {
+            dispose();
+            new RegisterShipPage(user);
+        });
+
+        requestPortEntryButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Request Port Entry Page Coming Soon");
+        });
+
+        requestDockingButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Request Docking Page Coming Soon");
+        });
+
+        viewShipStatusButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "View Ship Status Page Coming Soon");
+        });
+
+        logoutButton.addActionListener(e -> {
+            dispose();
+            new LoginPage();
+        });
+
         menuPanel.add(registerShipButton);
         menuPanel.add(requestPortEntryButton);
         menuPanel.add(requestDockingButton);
         menuPanel.add(viewShipStatusButton);
+        menuPanel.add(logoutButton);
 
         mainPanel.add(title, BorderLayout.NORTH);
         mainPanel.add(menuPanel, BorderLayout.CENTER);
