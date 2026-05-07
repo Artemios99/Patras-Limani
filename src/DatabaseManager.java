@@ -31,7 +31,7 @@ public class DatabaseManager {
         ");";
                  
         String shipsTable = "CREATE TABLE IF NOT EXISTS ships (" +
-        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "id INTEGER PRIMARY KEY ," +
         "name TEXT NOT NULL," +
         "type TEXT NOT NULL CHECK (type IN ('Cargo','Tanker','Passenger'))," +
         "capacity INTEGER," +

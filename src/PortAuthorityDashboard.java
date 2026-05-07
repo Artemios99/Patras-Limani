@@ -1,5 +1,3 @@
-
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -47,7 +45,12 @@ public class PortAuthorityDashboard extends JFrame {
 
         add(mainPanel);
 
-        setVisible(true);
+        manageEntryRequestsButton.addActionListener(e -> {
+            dispose();
+            new ManageEntryRequestsPage(user);
+        });
+
+setVisible(true);
     }
 
     private JButton createButton(String text, Color color) {
