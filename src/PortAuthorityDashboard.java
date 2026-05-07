@@ -26,19 +26,21 @@ public class PortAuthorityDashboard extends JFrame {
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 28));
 
-        JPanel menuPanel = new JPanel(new GridLayout(4, 1, 15, 15));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(50, 180, 50, 180));
+        JPanel menuPanel = new JPanel(new GridLayout(5, 1, 15, 15));
+        menuPanel.setBorder(BorderFactory.createEmptyBorder(40, 180, 40, 180));
         menuPanel.setBackground(backgroundColor);
 
-        JButton shipsButton = createButton("All Ships", buttonColor);
-        JButton dockButton = createButton("Dock Management", buttonColor);
-        JButton approveButton = createButton("Approve Requests", buttonColor);
-        JButton trafficButton = createButton("Port Traffic", buttonColor);
+        JButton manageEntryRequestsButton = createButton("Manage Entry Requests", buttonColor);
+        JButton assignDockingSpotButton = createButton("Assign Docking Spot", buttonColor);
+        JButton viewDockStatusButton = createButton("View Dock Status", buttonColor);
+        JButton viewArrivalScheduleButton = createButton("View Arrival Schedule", buttonColor);
+        JButton viewPaymentsOverviewButton = createButton("View Payments Overview", buttonColor);
 
-        menuPanel.add(shipsButton);
-        menuPanel.add(dockButton);
-        menuPanel.add(approveButton);
-        menuPanel.add(trafficButton);
+        menuPanel.add(manageEntryRequestsButton);
+        menuPanel.add(assignDockingSpotButton);
+        menuPanel.add(viewDockStatusButton);
+        menuPanel.add(viewArrivalScheduleButton);
+        menuPanel.add(viewPaymentsOverviewButton);
 
         mainPanel.add(title, BorderLayout.NORTH);
         mainPanel.add(menuPanel, BorderLayout.CENTER);
