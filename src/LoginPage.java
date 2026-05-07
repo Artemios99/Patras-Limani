@@ -63,9 +63,8 @@ public class LoginPage extends JFrame {
         });
 
         registerButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Register page will open here.");
-            // αργότερα:
-            // new RegisterPage();
+            new RegisterPage();
+            
         });
 
         setVisible(true);
