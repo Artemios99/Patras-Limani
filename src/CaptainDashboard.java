@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -29,15 +28,22 @@ public class CaptainDashboard extends JFrame {
         menuPanel.setBorder(BorderFactory.createEmptyBorder(50, 180, 50, 180));
         menuPanel.setBackground(backgroundColor);
 
-        JButton shipButton = createButton("My Ship", buttonColor);
-        JButton arrivalButton = createButton("Arrival Request", buttonColor);
-        JButton departureButton = createButton("Departure Request", buttonColor);
-        JButton notificationsButton = createButton("Notifications", buttonColor);
+        JButton registerShipButton =
+                createButton("Register Ship", buttonColor);
 
-        menuPanel.add(shipButton);
-        menuPanel.add(arrivalButton);
-        menuPanel.add(departureButton);
-        menuPanel.add(notificationsButton);
+        JButton requestPortEntryButton =
+                createButton("Request Port Entry", buttonColor);
+
+        JButton requestDockingButton =
+                createButton("Request Docking", buttonColor);
+
+        JButton viewShipStatusButton =
+                createButton("View Ship Status", buttonColor);
+
+        menuPanel.add(registerShipButton);
+        menuPanel.add(requestPortEntryButton);
+        menuPanel.add(requestDockingButton);
+        menuPanel.add(viewShipStatusButton);
 
         mainPanel.add(title, BorderLayout.NORTH);
         mainPanel.add(menuPanel, BorderLayout.CENTER);
