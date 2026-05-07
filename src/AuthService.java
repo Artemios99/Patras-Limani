@@ -36,29 +36,30 @@ public class AuthService {
     }
 
     // LOGIN USER
-    public boolean loginUser(String username, String password) {
+   public boolean loginUser(String username, String password, String userType) {
 
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+    String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND user_type = ?";
 
-        try (Connection conn = DatabaseManager.connect();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
+        pstmt.setString(1, username);
+        pstmt.setString(2, password);
+        pstmt.setString(3, userType);
 
-            ResultSet rs = pstmt.executeQuery();
+        ResultSet rs = pstmt.executeQuery();
 
-            if (rs.next()) {
-                System.out.println("Login successful!");
-                return true;
-            } else {
-                System.out.println("Wrong username or password!");
-                return false;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (rs.next()) {
+            System.out.println("Login successful!");
+            return true;
+        } else {
+            System.out.println("Wrong username, password or role!");
             return false;
         }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
     }
+}
 }
