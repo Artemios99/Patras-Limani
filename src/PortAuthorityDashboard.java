@@ -55,6 +55,11 @@ public class PortAuthorityDashboard extends JFrame {
             new AssignDockingSpotPage(user);
         });
 
+        viewDockStatusButton.addActionListener(e -> {
+            dispose();
+            new ViewDockStatusPage(user);
+        });
+
         setVisible(true);
     }
 
