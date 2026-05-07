@@ -24,25 +24,30 @@ public class ShipOwnerDashboard extends JFrame {
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 28));
 
-        JPanel menuPanel = new JPanel(new GridLayout(4, 1, 15, 15));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(50, 180, 50, 180));
+        JPanel menuPanel = new JPanel(new GridLayout(2, 1, 15, 15));
+        menuPanel.setBorder(BorderFactory.createEmptyBorder(100, 180, 100, 180));
         menuPanel.setBackground(backgroundColor);
 
-        JButton fleetButton = createButton("Fleet Overview", buttonColor);
-        JButton statusButton = createButton("Ship Status", buttonColor);
-        JButton maintenanceButton = createButton("Maintenance", buttonColor);
-        JButton costsButton = createButton("Costs", buttonColor);
+        JButton viewShipsButton = createButton("View My Ships", buttonColor);
+        JButton chargesButton = createButton("View And Pay Taxes", buttonColor);
 
-        menuPanel.add(fleetButton);
-        menuPanel.add(statusButton);
-        menuPanel.add(maintenanceButton);
-        menuPanel.add(costsButton);
-
+        menuPanel.add(viewShipsButton);
+        menuPanel.add(chargesButton);
         mainPanel.add(title, BorderLayout.NORTH);
         mainPanel.add(menuPanel, BorderLayout.CENTER);
 
         add(mainPanel);
 
+        viewShipsButton.addActionListener(e -> {
+            dispose();
+            new ViewMyShipsPage(user);
+        });
+
+        chargesButton.addActionListener(e -> {
+            dispose();
+            new ViewAndPayChargesPage(user);
+        });
+        
         setVisible(true);
     }
 

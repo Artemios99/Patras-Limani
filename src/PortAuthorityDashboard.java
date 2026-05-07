@@ -65,6 +65,10 @@ public class PortAuthorityDashboard extends JFrame {
             new ViewArrivalSchedulePage(user);
         });
 
+        viewPaymentsOverviewButton.addActionListener(e -> {
+            dispose();
+            new ViewPaymentsOverviewPage(user);
+        });
         
         setVisible(true);
     }
