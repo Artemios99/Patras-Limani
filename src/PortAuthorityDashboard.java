@@ -50,7 +50,12 @@ public class PortAuthorityDashboard extends JFrame {
             new ManageEntryRequestsPage(user);
         });
 
-setVisible(true);
+        assignDockingSpotButton.addActionListener(e -> {
+            dispose();
+            new AssignDockingSpotPage(user);
+        });
+
+        setVisible(true);
     }
 
     private JButton createButton(String text, Color color) {
