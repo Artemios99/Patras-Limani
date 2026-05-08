@@ -1,16 +1,16 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class ViewAndPayChargesPage extends JFrame {
+public class AssignDockingSpotPage extends JFrame {
 
     private User user;
 
-    public ViewAndPayChargesPage(User user) {
+    public AssignDockingSpotPage(User user) {
 
         this.user = user;
 
-        setTitle("View And Pay Charges");
-        setSize(750, 400);
+        setTitle("Assign Docking Spot");
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -21,38 +21,48 @@ public class ViewAndPayChargesPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
         mainPanel.setBackground(backgroundColor);
 
-        JLabel title = new JLabel("My Charges", SwingConstants.CENTER);
+        JLabel title = new JLabel(
+                "Assign Docking Spot",
+                SwingConstants.CENTER
+        );
+
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 24));
 
         String[] columns = {
-                "Payment ID",
+                "Request ID",
                 "Ship ID",
-                "Amount",
-                "Description",
+                "Captain ID",
                 "Status"
         };
 
         Object[][] data = {
-                {1, 1, 1500.0, "Docking Fee", "pending"},
-                {2, 2, 3000.0, "Port Entry Fee", "paid"}
+                {1, 1, 2, "yes"},
+                {2, 3, 4, "yes"}
         };
 
-        JTable table = new JTable(data, columns);
+        JTable requestTable = new JTable(data, columns);
 
-        JScrollPane scrollPane = new JScrollPane(table);
+        JScrollPane scrollPane = new JScrollPane(requestTable);
 
-        JButton payButton = new JButton("Pay Selected Charge");
-        JButton backButton = new JButton("Back");
-
-        styleButton(payButton, buttonColor);
-        styleButton(backButton, buttonColor);
-
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 2, 15, 15));
+        JPanel bottomPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         bottomPanel.setBackground(backgroundColor);
 
+        JLabel dockLabel = new JLabel("Dock Number:");
+        dockLabel.setForeground(Color.WHITE);
+
+        JTextField dockField = new JTextField();
+
+        JButton assignButton = new JButton("Assign Dock");
+        JButton backButton = new JButton("Back");
+
+        styleButton(assignButton, buttonColor);
+        styleButton(backButton, buttonColor);
+
+        bottomPanel.add(dockLabel);
+        bottomPanel.add(dockField);
         bottomPanel.add(backButton);
-        bottomPanel.add(payButton);
+        bottomPanel.add(assignButton);
 
         mainPanel.add(title, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
@@ -60,23 +70,23 @@ public class ViewAndPayChargesPage extends JFrame {
 
         add(mainPanel);
 
-        payButton.addActionListener(e -> {
+        assignButton.addActionListener(e -> {
 
-            int selectedRow = table.getSelectedRow();
+            int selectedRow = requestTable.getSelectedRow();
 
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Please select a payment."
+                        "Please select a request."
                 );
                 return;
             }
 
-            table.setValueAt("paid", selectedRow, 4);
+            String dockNumber = dockField.getText();
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Payment completed successfully!"
+                    "Dock " + dockNumber + " assigned successfully!"
             );
         });
 
@@ -84,7 +94,7 @@ public class ViewAndPayChargesPage extends JFrame {
 
             dispose();
 
-            new ShipOwnerDashboard(user);
+            new PortAuthorityDashboard(user);
         });
 
         setVisible(true);

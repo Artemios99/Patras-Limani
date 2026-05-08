@@ -1,15 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class ViewMyShipsPage extends JFrame {
+public class ViewDockingAssignmentsPage extends JFrame {
 
     private User user;
 
-    public ViewMyShipsPage(User user) {
+    public ViewDockingAssignmentsPage(User user) {
 
         this.user = user;
 
-        setTitle("View My Ships");
+        setTitle("View Docking Assignments");
         setSize(700, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -21,25 +21,18 @@ public class ViewMyShipsPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
         mainPanel.setBackground(backgroundColor);
 
-        JLabel title = new JLabel("My Ships", SwingConstants.CENTER);
+        JLabel title = new JLabel("Docking Assignments", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 24));
 
-        String[] columns = {
-                "ID",
-                "Name",
-                "Type",
-                "Capacity",
-                "Captain ID"
-        };
+        String[] columns = {"Dock ID", "Dock Number", "Ship ID", "Status"};
 
         Object[][] data = {
-                {1, "Poseidon", "Cargo", 5000, 2},
-                {2, "Aegean Star", "Passenger", 800, 3}
+                {1, 1, 3, "occupied"},
+                {2, 2, 5, "occupied"}
         };
 
         JTable table = new JTable(data, columns);
-        JScrollPane scrollPane = new JScrollPane(table);
 
         JButton backButton = new JButton("Back");
         styleButton(backButton, buttonColor);
@@ -49,14 +42,14 @@ public class ViewMyShipsPage extends JFrame {
         bottomPanel.add(backButton);
 
         mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(new JScrollPane(table), BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
 
         backButton.addActionListener(e -> {
             dispose();
-            new ShipOwnerDashboard(user);
+            new DockWorkerDashboard(user);
         });
 
         setVisible(true);

@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -25,24 +24,37 @@ public class DockWorkerDashboard extends JFrame {
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 28));
 
-        JPanel menuPanel = new JPanel(new GridLayout(4, 1, 15, 15));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(50, 180, 50, 180));
+        JPanel menuPanel = new JPanel(new GridLayout(3, 1, 15, 15));
+        menuPanel.setBorder(BorderFactory.createEmptyBorder(70, 180, 70, 180));
         menuPanel.setBackground(backgroundColor);
 
-        JButton tasksButton = createButton("Assigned Tasks", buttonColor);
-        JButton cargoButton = createButton("Cargo Loading", buttonColor);
-        JButton scheduleButton = createButton("Schedule", buttonColor);
-        JButton shiftButton = createButton("Shift Info", buttonColor);
+        JButton viewAssignmentsButton = createButton("View Docking Assignments", buttonColor);
+        JButton updateStatusButton = createButton("Update Docking Status", buttonColor);
+        JButton releaseDockButton = createButton("Release Dock", buttonColor);
 
-        menuPanel.add(tasksButton);
-        menuPanel.add(cargoButton);
-        menuPanel.add(scheduleButton);
-        menuPanel.add(shiftButton);
+        menuPanel.add(viewAssignmentsButton);
+        menuPanel.add(updateStatusButton);
+        menuPanel.add(releaseDockButton);
 
         mainPanel.add(title, BorderLayout.NORTH);
         mainPanel.add(menuPanel, BorderLayout.CENTER);
 
         add(mainPanel);
+
+        viewAssignmentsButton.addActionListener(e -> {
+            dispose();
+            new ViewDockingAssignmentsPage(user);
+        });
+
+        updateStatusButton.addActionListener(e -> {
+            dispose();
+            new UpdateDockingStatusPage(user);
+        });
+
+        releaseDockButton.addActionListener(e -> {
+            dispose();
+            new ReleaseDockPage(user);
+        });
 
         setVisible(true);
     }

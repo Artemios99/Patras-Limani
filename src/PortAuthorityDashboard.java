@@ -1,5 +1,3 @@
-
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -47,6 +45,31 @@ public class PortAuthorityDashboard extends JFrame {
 
         add(mainPanel);
 
+        manageEntryRequestsButton.addActionListener(e -> {
+            dispose();
+            new ManageEntryRequestsPage(user);
+        });
+
+        assignDockingSpotButton.addActionListener(e -> {
+            dispose();
+            new AssignDockingSpotPage(user);
+        });
+
+        viewDockStatusButton.addActionListener(e -> {
+            dispose();
+            new ViewDockStatusPage(user);
+        });
+
+        viewArrivalScheduleButton.addActionListener(e -> {
+            dispose();
+            new ViewArrivalSchedulePage(user);
+        });
+
+        viewPaymentsOverviewButton.addActionListener(e -> {
+            dispose();
+            new ViewPaymentsOverviewPage(user);
+        });
+        
         setVisible(true);
     }
 
