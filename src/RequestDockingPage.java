@@ -1,16 +1,19 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class RequestDockingPage extends JFrame {
 
     private User user;
+    private JComboBox<Ship> shipBox;
+    private JTextField requestedDateField;
 
     public RequestDockingPage(User user) {
 
         this.user = user;
 
         setTitle("Request Docking");
-        setSize(500, 350);
+        setSize(550, 350);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -21,8 +24,16 @@ public class RequestDockingPage extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
         panel.setBackground(backgroundColor);
 
-        JTextField shipIdField = new JTextField();
-        JTextField requestedDateField = new JTextField();
+        ShipService shipService = new ShipService();
+        ArrayList<Ship> ships = shipService.getShipsByCaptainId(user.getId());
+
+        shipBox = new JComboBox<>();
+
+        for (Ship ship : ships) {
+            shipBox.addItem(ship);
+        }
+
+        requestedDateField = new JTextField();
 
         JButton backButton = new JButton("Back");
         JButton requestButton = new JButton("Request Docking");
@@ -30,8 +41,8 @@ public class RequestDockingPage extends JFrame {
         styleButton(backButton, buttonColor);
         styleButton(requestButton, buttonColor);
 
-        addLabel(panel, "Ship ID:");
-        panel.add(shipIdField);
+        addLabel(panel, "Select Ship:");
+        panel.add(shipBox);
 
         addLabel(panel, "Requested Date:");
         panel.add(requestedDateField);
@@ -41,12 +52,7 @@ public class RequestDockingPage extends JFrame {
 
         add(panel);
 
-        requestButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Docking request submitted successfully!"
-            );
-        });
+        requestButton.addActionListener(e -> submitRequest());
 
         backButton.addActionListener(e -> {
             dispose();
@@ -54,6 +60,61 @@ public class RequestDockingPage extends JFrame {
         });
 
         setVisible(true);
+    }
+
+    private void submitRequest() {
+
+        Ship selectedShip = (Ship) shipBox.getSelectedItem();
+        String requestedDate = requestedDateField.getText().trim();
+
+        if (selectedShip == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No ship found for this captain.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        if (requestedDate.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Requested date cannot be empty.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        DockingRequest request = new DockingRequest(
+                selectedShip.getId(),
+                user.getId(),
+                requestedDate,
+                "pending"
+        );
+
+        DockingRequestService service = new DockingRequestService();
+
+        boolean success = service.createRequest(request);
+
+        if (success) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Docking request submitted successfully!"
+            );
+
+            dispose();
+            new CaptainDashboard(user);
+
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Docking request failed.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void addLabel(JPanel panel, String text) {

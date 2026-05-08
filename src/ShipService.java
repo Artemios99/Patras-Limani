@@ -74,4 +74,53 @@ public class ShipService {
 
     return ships;
 }
+
+public String getLatestPortEntryStatus(int shipId) {
+
+    String sql = "SELECT status FROM port_entry_requests " +
+                 "WHERE ship_id = ? " +
+                 "ORDER BY id DESC LIMIT 1";
+
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setInt(1, shipId);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            return rs.getString("status");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return "No Request";
+}
+
+public String getLatestDockingStatus(int shipId) {
+
+    String sql = "SELECT status FROM docking_requests " +
+                 "WHERE ship_id = ? " +
+                 "ORDER BY id DESC LIMIT 1";
+
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setInt(1, shipId);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            return rs.getString("status");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return "No Request";
+}
+
 }
