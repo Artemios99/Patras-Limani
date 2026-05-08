@@ -49,21 +49,25 @@ public class CaptainDashboard extends JFrame {
             new RegisterShipPage(user);
         });
 
-        requestPortEntryButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Request Port Entry Page Coming Soon");
-        });
-
-        requestDockingButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Request Docking Page Coming Soon");
-        });
-
-        viewShipStatusButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "View Ship Status Page Coming Soon");
-        });
+        
 
         logoutButton.addActionListener(e -> {
             dispose();
             new LoginPage();
+        });
+        requestPortEntryButton.addActionListener(e -> {
+            dispose();
+            new RequestPortEntryPage(user);
+        });
+
+        requestDockingButton.addActionListener(e -> {
+            dispose();
+            new RequestDockingPage(user);
+        });
+
+        viewShipStatusButton.addActionListener(e -> {
+            dispose();
+            new ViewShipStatusPage(user);
         });
 
         menuPanel.add(registerShipButton);
