@@ -79,39 +79,41 @@ public class RegisterShipPage extends JFrame {
         String capacityText = capacityField.getText().trim();
 
         if (!shipId.matches("\\d+")) {
-    JOptionPane.showMessageDialog(
-            this,
-            "Ship ID must contain only digits.",
-            "Invalid Ship ID",
-            JOptionPane.ERROR_MESSAGE
-    );
-    return;
-}
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ship ID must contain only digits.",
+                    "Invalid Ship ID",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
 
-if (shipId.length() < 7) {
-    JOptionPane.showMessageDialog(
-            this,
-            "Ship ID must contain exactly 7 digits. You entered fewer digits.",
-            "Invalid Ship ID",
-            JOptionPane.ERROR_MESSAGE
-    );
-    return;
-}
+        if (shipId.length() < 7) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ship ID must contain exactly 7 digits. You entered fewer digits.",
+                    "Invalid Ship ID",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
 
-if (shipId.length() > 7) {
-    JOptionPane.showMessageDialog(
-            this,
-            "Ship ID must contain exactly 7 digits. You entered too many digits.",
-            "Invalid Ship ID",
-            JOptionPane.ERROR_MESSAGE
-    );
-    return;
-}
+        if (shipId.length() > 7) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ship ID must contain exactly 7 digits. You entered too many digits.",
+                    "Invalid Ship ID",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
 
         if (name.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Ship name cannot be empty."
+                    "Ship name cannot be empty.",
+                    "Invalid Ship Name",
+                    JOptionPane.ERROR_MESSAGE
             );
             return;
         }
@@ -124,7 +126,9 @@ if (shipId.length() > 7) {
             if (capacity <= 0) {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Capacity must be a positive number."
+                        "Capacity must be a positive number.",
+                        "Invalid Capacity",
+                        JOptionPane.ERROR_MESSAGE
                 );
                 return;
             }
@@ -132,22 +136,43 @@ if (shipId.length() > 7) {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Capacity must be a number."
+                    "Capacity must be a number.",
+                    "Invalid Capacity",
+                    JOptionPane.ERROR_MESSAGE
             );
             return;
         }
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Ship Registered Successfully!\n"
-                        + "Ship ID: " + shipId + "\n"
-                        + "Ship Name: " + name + "\n"
-                        + "Type: " + type + "\n"
-                        + "Capacity: " + capacity
+        Ship ship = new Ship(
+                shipId,
+                name,
+                type,
+                capacity,
+                user.getId(),
+                user.getId()
         );
 
-        dispose();
-        new CaptainDashboard(user);
+        ShipService shipService = new ShipService();
+
+        boolean success = shipService.registerShip(ship);
+
+        if (success) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ship registered successfully!"
+            );
+
+            dispose();
+            new CaptainDashboard(user);
+
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ship ID already exists or registration failed.",
+                    "Registration Failed",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void addLabel(JPanel panel, String text) {

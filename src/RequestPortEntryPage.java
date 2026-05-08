@@ -1,16 +1,19 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class RequestPortEntryPage extends JFrame {
 
     private User user;
+    private JComboBox<Ship> shipBox;
+    private JTextField arrivalDateField;
 
     public RequestPortEntryPage(User user) {
 
         this.user = user;
 
         setTitle("Request Port Entry");
-        setSize(500, 350);
+        setSize(550, 350);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -21,8 +24,16 @@ public class RequestPortEntryPage extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
         panel.setBackground(backgroundColor);
 
-        JTextField shipIdField = new JTextField();
-        JTextField arrivalDateField = new JTextField();
+        ShipService shipService = new ShipService();
+        ArrayList<Ship> ships = shipService.getShipsByCaptainId(user.getId());
+
+        shipBox = new JComboBox<>();
+
+        for (Ship ship : ships) {
+            shipBox.addItem(ship);
+        }
+
+        arrivalDateField = new JTextField();
 
         JButton backButton = new JButton("Back");
         JButton requestButton = new JButton("Request Entry");
@@ -30,8 +41,8 @@ public class RequestPortEntryPage extends JFrame {
         styleButton(backButton, buttonColor);
         styleButton(requestButton, buttonColor);
 
-        addLabel(panel, "Ship ID:");
-        panel.add(shipIdField);
+        addLabel(panel, "Select Ship:");
+        panel.add(shipBox);
 
         addLabel(panel, "Arrival Date:");
         panel.add(arrivalDateField);
@@ -41,12 +52,7 @@ public class RequestPortEntryPage extends JFrame {
 
         add(panel);
 
-        requestButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Port entry request submitted successfully!"
-            );
-        });
+        requestButton.addActionListener(e -> submitRequest());
 
         backButton.addActionListener(e -> {
             dispose();
@@ -54,6 +60,61 @@ public class RequestPortEntryPage extends JFrame {
         });
 
         setVisible(true);
+    }
+
+    private void submitRequest() {
+
+        Ship selectedShip = (Ship) shipBox.getSelectedItem();
+        String arrivalDate = arrivalDateField.getText().trim();
+
+        if (selectedShip == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No ship found for this captain.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        if (arrivalDate.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Arrival date cannot be empty.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        PortEntryRequests request = new PortEntryRequests(
+                selectedShip.getId(),
+                user.getId(),
+                arrivalDate,
+                "pending"
+        );
+
+        PortEntryRequestService service = new PortEntryRequestService();
+
+        boolean success = service.createRequest(request);
+
+        if (success) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Port entry request submitted successfully!"
+            );
+
+            dispose();
+            new CaptainDashboard(user);
+
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Request failed.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void addLabel(JPanel panel, String text) {
