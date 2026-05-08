@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class ViewArrivalSchedulePage extends JFrame {
 
@@ -10,7 +11,7 @@ public class ViewArrivalSchedulePage extends JFrame {
         this.user = user;
 
         setTitle("View Arrival Schedule");
-        setSize(700, 400);
+        setSize(750, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -37,11 +38,21 @@ public class ViewArrivalSchedulePage extends JFrame {
                 "Status"
         };
 
-        Object[][] data = {
-                {1, 1, 2, "2025-05-01", "pending"},
-                {2, 3, 4, "2025-05-03", "yes"},
-                {3, 5, 6, "2025-05-05", "pending"}
-        };
+        PortEntryRequestService service = new PortEntryRequestService();
+        ArrayList<PortEntryRequests> requests = service.getAllRequests();
+
+        Object[][] data = new Object[requests.size()][5];
+
+        for (int i = 0; i < requests.size(); i++) {
+
+            PortEntryRequests request = requests.get(i);
+
+            data[i][0] = request.getId();
+            data[i][1] = request.getShipId();
+            data[i][2] = request.getCaptainId();
+            data[i][3] = request.getArrivalDate();
+            data[i][4] = request.getStatus();
+        }
 
         JTable arrivalTable = new JTable(data, columns);
 

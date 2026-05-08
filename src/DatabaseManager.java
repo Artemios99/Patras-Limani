@@ -42,8 +42,8 @@ public class DatabaseManager {
 
         String docksTable = "CREATE TABLE IF NOT EXISTS docks (" +
         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-        "number INTEGER UNIQUE," +
-        "status TEXT NOT NULL CHECK (status IN ('available','occupied'))," +
+        "number INTEGER UNIQUE NOT NULL," +
+        "status TEXT NOT NULL CHECK(status IN ('available','occupied'))," +
         "current_ship_id INTEGER" +
         ");";
 
@@ -81,6 +81,15 @@ public class DatabaseManager {
     stmt.execute(portEntryRequestsTable);
     stmt.execute(dockingRequestsTable);
     stmt.execute(paymentsTable);
+
+    for (int i = 1; i <= 30; i++) {
+
+    stmt.execute(
+            "INSERT OR IGNORE INTO docks " +
+            "(number, status, current_ship_id) " +
+            "VALUES (" + i + ", 'available', NULL)"
+    );
+}
 
     System.out.println("Tables ready!");
 

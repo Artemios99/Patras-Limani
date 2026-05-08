@@ -123,4 +123,35 @@ public String getLatestDockingStatus(int shipId) {
     return "No Request";
 }
 
+public Ship getShipById(int shipId) {
+
+    String sql = "SELECT * FROM ships WHERE id = ?";
+
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setInt(1, shipId);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+
+            return new Ship(
+                    rs.getInt("id"),
+                    rs.getString("ship_code"),
+                    rs.getString("name"),
+                    rs.getString("type"),
+                    rs.getInt("capacity"),
+                    rs.getInt("owner_id"),
+                    rs.getInt("captain_id")
+            );
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return null;
+}
+
 }

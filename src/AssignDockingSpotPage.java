@@ -1,16 +1,18 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class AssignDockingSpotPage extends JFrame {
 
     private User user;
+    private JTable requestTable;
 
     public AssignDockingSpotPage(User user) {
 
         this.user = user;
 
         setTitle("Assign Docking Spot");
-        setSize(600, 400);
+        setSize(650, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -21,11 +23,7 @@ public class AssignDockingSpotPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
         mainPanel.setBackground(backgroundColor);
 
-        JLabel title = new JLabel(
-                "Assign Docking Spot",
-                SwingConstants.CENTER
-        );
-
+        JLabel title = new JLabel("Assign Docking Spot", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 24));
 
@@ -33,16 +31,26 @@ public class AssignDockingSpotPage extends JFrame {
                 "Request ID",
                 "Ship ID",
                 "Captain ID",
+                "Requested Date",
                 "Status"
         };
 
-        Object[][] data = {
-                {1, 1, 2, "yes"},
-                {2, 3, 4, "yes"}
-        };
+        DockingRequestService requestService = new DockingRequestService();
+        ArrayList<DockingRequest> requests = requestService.getApprovedRequests();
 
-        JTable requestTable = new JTable(data, columns);
+        Object[][] data = new Object[requests.size()][5];
 
+        for (int i = 0; i < requests.size(); i++) {
+            DockingRequest request = requests.get(i);
+
+            data[i][0] = request.getId();
+            data[i][1] = request.getShipId();
+            data[i][2] = request.getCaptainId();
+            data[i][3] = request.getRequestedDate();
+            data[i][4] = request.getStatus();
+        }
+
+        requestTable = new JTable(data, columns);
         JScrollPane scrollPane = new JScrollPane(requestTable);
 
         JPanel bottomPanel = new JPanel(new GridLayout(2, 2, 10, 10));
@@ -75,25 +83,44 @@ public class AssignDockingSpotPage extends JFrame {
             int selectedRow = requestTable.getSelectedRow();
 
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Please select a request."
-                );
+                JOptionPane.showMessageDialog(this, "Please select a request.");
                 return;
             }
 
-            String dockNumber = dockField.getText();
+            String dockText = dockField.getText().trim();
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Dock " + dockNumber + " assigned successfully!"
-            );
+            int dockNumber;
+
+            try {
+                dockNumber = Integer.parseInt(dockText);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Dock number must be a number.");
+                return;
+            }
+
+            int shipId = (int) requestTable.getValueAt(selectedRow, 1);
+
+            DockService dockService = new DockService();
+
+            boolean success = dockService.assignDock(dockNumber, shipId);
+
+            if (success) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Dock " + dockNumber + " assigned successfully!"
+                );
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Assignment failed. Check if dock number exists.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
         });
 
         backButton.addActionListener(e -> {
-
             dispose();
-
             new PortAuthorityDashboard(user);
         });
 
