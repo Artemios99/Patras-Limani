@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import javax.swing.table.DefaultTableCellRenderer;
 
 public class ManageEntryRequestsPage extends JFrame {
 
@@ -68,6 +69,11 @@ public class ManageEntryRequestsPage extends JFrame {
         portEntryTable =
                 new JTable(portData, portColumns);
 
+        portEntryTable.setDefaultRenderer(
+        Object.class,
+        new StatusColorRenderer()
+);
+
         JScrollPane portScroll =
                 new JScrollPane(portEntryTable);
 
@@ -123,6 +129,11 @@ public class ManageEntryRequestsPage extends JFrame {
 
         dockingTable =
                 new JTable(dockData, dockColumns);
+
+        dockingTable.setDefaultRenderer(
+        Object.class,
+        new StatusColorRenderer()
+);
 
         JScrollPane dockScroll =
                 new JScrollPane(dockingTable);
@@ -286,4 +297,54 @@ public class ManageEntryRequestsPage extends JFrame {
                         14)
         );
     }
+
+    private static class StatusColorRenderer
+        extends DefaultTableCellRenderer {
+
+    @Override
+    public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column
+    ) {
+
+        Component cell =
+                super.getTableCellRendererComponent(
+                        table,
+                        value,
+                        isSelected,
+                        hasFocus,
+                        row,
+                        column
+                );
+
+        String status =
+                table.getValueAt(row, 4).toString();
+
+        if (status.equals("yes")) {
+
+            cell.setBackground(Color.GREEN);
+            cell.setForeground(Color.BLACK);
+
+        }
+
+        else if (status.equals("no")) {
+
+            cell.setBackground(Color.RED);
+            cell.setForeground(Color.WHITE);
+
+        }
+
+        else {
+
+            cell.setBackground(Color.WHITE);
+            cell.setForeground(Color.BLACK);
+        }
+
+        return cell;
+    }
+}
 }

@@ -7,6 +7,7 @@ public class RegisterShipPage extends JFrame {
     private JTextField nameField;
     private JComboBox<String> typeBox;
     private JTextField capacityField;
+    private JTextField ownerUsernameField;
 
     private User user;
 
@@ -15,14 +16,14 @@ public class RegisterShipPage extends JFrame {
         this.user = user;
 
         setTitle("Register Ship");
-        setSize(500, 450);
+        setSize(500, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         Color backgroundColor = new Color(10, 35, 66);
         Color buttonColor = new Color(0, 119, 182);
 
-        JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(8, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
         panel.setBackground(backgroundColor);
 
@@ -37,6 +38,7 @@ public class RegisterShipPage extends JFrame {
 
         typeBox = new JComboBox<>(shipTypes);
         capacityField = new JTextField();
+        ownerUsernameField = new JTextField();
 
         JButton registerButton = new JButton("Register Ship");
         JButton backButton = new JButton("Back");
@@ -55,6 +57,9 @@ public class RegisterShipPage extends JFrame {
 
         addLabel(panel, "Capacity:");
         panel.add(capacityField);
+
+        addLabel(panel, "Owner Username:");
+        panel.add(ownerUsernameField);
 
         panel.add(backButton);
         panel.add(registerButton);
@@ -77,6 +82,7 @@ public class RegisterShipPage extends JFrame {
         String name = nameField.getText().trim();
         String type = (String) typeBox.getSelectedItem();
         String capacityText = capacityField.getText().trim();
+        String ownerUsername = ownerUsernameField.getText().trim();
 
         if (!shipId.matches("\\d+")) {
             JOptionPane.showMessageDialog(
@@ -143,12 +149,45 @@ public class RegisterShipPage extends JFrame {
             return;
         }
 
+        if (ownerUsername.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Owner username cannot be empty.",
+                    "Invalid Owner",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        AuthService authService = new AuthService();
+        User owner = authService.getUserByUsername(ownerUsername);
+
+        if (owner == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Owner username does not exist.",
+                    "Invalid Owner",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        if (!owner.getUserType().equals("ShipOwner")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "This user is not a ShipOwner.",
+                    "Invalid Owner",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
         Ship ship = new Ship(
                 shipId,
                 name,
                 type,
                 capacity,
-                user.getId(),
+                owner.getId(),
                 user.getId()
         );
 

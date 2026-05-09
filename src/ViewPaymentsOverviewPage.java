@@ -40,6 +40,7 @@ public class ViewPaymentsOverviewPage extends JFrame {
         PortEntryRequestService portEntryService = new PortEntryRequestService();
         ShipService shipService = new ShipService();
         DockService dockService = new DockService();
+        PaymentService paymentService = new PaymentService();
 
         ArrayList<PortEntryRequests> approvedRequests =
                 portEntryService.getApprovedRequests();
@@ -50,6 +51,10 @@ public class ViewPaymentsOverviewPage extends JFrame {
 
             PortEntryRequests request = approvedRequests.get(i);
             Ship ship = shipService.getShipById(request.getShipId());
+
+            if (ship == null) {
+                continue;
+            }
 
             double portFee = calculatePortFee(ship.getType());
             double dockFee = dockService.isShipDocked(ship.getId()) ? 100 : 0;
@@ -62,7 +67,10 @@ public class ViewPaymentsOverviewPage extends JFrame {
             data[i][4] = portFee;
             data[i][5] = dockFee;
             data[i][6] = total;
-            data[i][7] = "unpaid";
+            data[i][7] = paymentService.getPaymentStatus(
+                    ship.getId(),
+                    ship.getOwnerId()
+            );
         }
 
         JTable paymentsTable = new JTable(data, columns);

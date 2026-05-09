@@ -34,19 +34,39 @@ public class DockService {
         }
     }
 
-    public boolean assignDock(int dockNumber, int shipId) {
+public boolean assignDock(int dockNumber, int shipId) {
 
-    String sql = "UPDATE docks SET status = 'occupied', current_ship_id = ? WHERE number = ?";
+    String checkSql =
+            "SELECT * FROM docks WHERE current_ship_id = ? AND status = 'occupied'";
 
-    try (Connection conn = DatabaseManager.connect();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    String updateSql =
+            "UPDATE docks " +
+            "SET status = 'occupied', current_ship_id = ? " +
+            "WHERE number = ? AND status = 'available'";
 
-        pstmt.setInt(1, shipId);
-        pstmt.setInt(2, dockNumber);
+    try (Connection conn = DatabaseManager.connect()) {
 
-        int rowsUpdated = pstmt.executeUpdate();
+        try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
 
-        return rowsUpdated > 0;
+            checkStmt.setInt(1, shipId);
+
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("Ship is already assigned to a dock!");
+                return false;
+            }
+        }
+
+        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+
+            updateStmt.setInt(1, shipId);
+            updateStmt.setInt(2, dockNumber);
+
+            int rowsUpdated = updateStmt.executeUpdate();
+
+            return rowsUpdated > 0;
+        }
 
     } catch (SQLException e) {
         e.printStackTrace();

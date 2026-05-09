@@ -96,4 +96,70 @@ public class AuthService {
 
     return null;
 }
+
+public User getUserByUsername(String username) {
+
+    String sql = "SELECT * FROM users WHERE username = ?";
+
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setString(1, username);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            return new User(
+                    rs.getInt("id"),
+                    rs.getString("user_type"),
+                    rs.getString("name"),
+                    rs.getString("surname"),
+                    rs.getString("phone"),
+                    rs.getString("email"),
+                    rs.getString("date_of_birth"),
+                    rs.getString("username"),
+                    rs.getString("password")
+            );
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return null;
+}
+
+public User getUserById(int id) {
+
+    String sql = "SELECT * FROM users WHERE id = ?";
+
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setInt(1, id);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+
+            return new User(
+                    rs.getInt("id"),
+                    rs.getString("user_type"),
+                    rs.getString("name"),
+                    rs.getString("surname"),
+                    rs.getString("phone"),
+                    rs.getString("email"),
+                    rs.getString("date_of_birth"),
+                    rs.getString("username"),
+                    rs.getString("password")
+            );
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return null;
+}
+
 }

@@ -9,8 +9,8 @@ public class DockingRequestService {
     public boolean createRequest(DockingRequest request) {
 
         String sql = "INSERT INTO docking_requests " +
-                     "(ship_id, captain_id, requested_date, status) " +
-                     "VALUES (?, ?, ?, ?)";
+                "(ship_id, captain_id, requested_date, status) " +
+                "VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -33,83 +33,116 @@ public class DockingRequestService {
 
     public ArrayList<DockingRequest> getApprovedRequests() {
 
-    ArrayList<DockingRequest> requests = new ArrayList<>();
+        ArrayList<DockingRequest> requests = new ArrayList<>();
 
-    String sql = "SELECT * FROM docking_requests WHERE status = 'yes'";
+        String sql =
+                "SELECT * FROM docking_requests " +
+                "WHERE status = 'yes' " +
+                "AND ship_id NOT IN (" +
+                "SELECT current_ship_id FROM docks " +
+                "WHERE status = 'occupied' AND current_ship_id IS NOT NULL" +
+                ")";
 
-    try (Connection conn = DatabaseManager.connect();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
 
-        while (rs.next()) {
-            DockingRequest request = new DockingRequest(
-                    rs.getInt("id"),
-                    rs.getInt("ship_id"),
-                    rs.getInt("captain_id"),
-                    rs.getString("requested_date"),
-                    rs.getString("status")
-            );
+            while (rs.next()) {
+                DockingRequest request = new DockingRequest(
+                        rs.getInt("id"),
+                        rs.getInt("ship_id"),
+                        rs.getInt("captain_id"),
+                        rs.getString("requested_date"),
+                        rs.getString("status")
+                );
 
-            requests.add(request);
+                requests.add(request);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return requests;
     }
 
-    return requests;
-}
+    public ArrayList<DockingRequest> getAllRequests() {
 
-public ArrayList<DockingRequest> getAllRequests() {
+        ArrayList<DockingRequest> requests = new ArrayList<>();
 
-    ArrayList<DockingRequest> requests = new ArrayList<>();
+        String sql = "SELECT * FROM docking_requests";
 
-    String sql = "SELECT * FROM docking_requests";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    try (Connection conn = DatabaseManager.connect();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
 
-        ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
 
-        while (rs.next()) {
+                DockingRequest request = new DockingRequest(
+                        rs.getInt("id"),
+                        rs.getInt("ship_id"),
+                        rs.getInt("captain_id"),
+                        rs.getString("requested_date"),
+                        rs.getString("status")
+                );
 
-            DockingRequest request = new DockingRequest(
-                    rs.getInt("id"),
-                    rs.getInt("ship_id"),
-                    rs.getInt("captain_id"),
-                    rs.getString("requested_date"),
-                    rs.getString("status")
-            );
+                requests.add(request);
+            }
 
-            requests.add(request);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return requests;
     }
 
-    return requests;
-}
+    public boolean updateRequestStatus(int requestId, String status) {
 
-public boolean updateRequestStatus(int requestId, String status) {
+        String sql = "UPDATE docking_requests SET status = ? WHERE id = ?";
 
-    String sql =
-            "UPDATE docking_requests SET status = ? WHERE id = ?";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    try (Connection conn = DatabaseManager.connect();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, status);
+            pstmt.setInt(2, requestId);
 
-        pstmt.setString(1, status);
-        pstmt.setInt(2, requestId);
+            int rowsUpdated = pstmt.executeUpdate();
 
-        int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
 
-        return rowsUpdated > 0;
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
-}
+
+    public DockingRequest getRequestById(int requestId) {
+
+        String sql = "SELECT * FROM docking_requests WHERE id = ?";
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, requestId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return new DockingRequest(
+                        rs.getInt("id"),
+                        rs.getInt("ship_id"),
+                        rs.getInt("captain_id"),
+                        rs.getString("requested_date"),
+                        rs.getString("status")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

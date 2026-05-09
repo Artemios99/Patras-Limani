@@ -154,4 +154,38 @@ public Ship getShipById(int shipId) {
     return null;
 }
 
+public ArrayList<Ship> getShipsByOwnerId(int ownerId) {
+
+    ArrayList<Ship> ships = new ArrayList<>();
+
+    String sql = "SELECT * FROM ships WHERE owner_id = ?";
+
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setInt(1, ownerId);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            Ship ship = new Ship(
+                    rs.getInt("id"),
+                    rs.getString("ship_code"),
+                    rs.getString("name"),
+                    rs.getString("type"),
+                    rs.getInt("capacity"),
+                    rs.getInt("owner_id"),
+                    rs.getInt("captain_id")
+            );
+
+            ships.add(ship);
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return ships;
+}
+
 }

@@ -11,7 +11,7 @@ public class ViewArrivalSchedulePage extends JFrame {
         this.user = user;
 
         setTitle("View Arrival Schedule");
-        setSize(750, 400);
+        setSize(950, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -31,38 +31,74 @@ public class ViewArrivalSchedulePage extends JFrame {
         title.setFont(new Font("Arial", Font.BOLD, 24));
 
         String[] columns = {
-                "Request ID",
                 "Ship ID",
-                "Captain ID",
+                "Captain Username",
+                "Ship Type",
+                "Capacity",
                 "Arrival Date",
-                "Status"
+                "Docked"
         };
 
-        PortEntryRequestService service = new PortEntryRequestService();
-        ArrayList<PortEntryRequests> requests = service.getAllRequests();
+        PortEntryRequestService portService =
+                new PortEntryRequestService();
 
-        Object[][] data = new Object[requests.size()][5];
+        ShipService shipService =
+                new ShipService();
+
+        AuthService authService =
+                new AuthService();
+
+        DockService dockService =
+                new DockService();
+
+        ArrayList<PortEntryRequests> requests =
+                portService.getApprovedRequests();
+
+        Object[][] data =
+                new Object[requests.size()][6];
 
         for (int i = 0; i < requests.size(); i++) {
 
-            PortEntryRequests request = requests.get(i);
+            PortEntryRequests request =
+                    requests.get(i);
 
-            data[i][0] = request.getId();
-            data[i][1] = request.getShipId();
-            data[i][2] = request.getCaptainId();
-            data[i][3] = request.getArrivalDate();
-            data[i][4] = request.getStatus();
+            Ship ship =
+                    shipService.getShipById(
+                            request.getShipId()
+                    );
+
+            User captain =
+                    authService.getUserById(
+                            request.getCaptainId()
+                    );
+
+            boolean docked =
+                    dockService.isShipDocked(
+                            ship.getId()
+                    );
+
+            data[i][0] = ship.getShipCode();
+            data[i][1] = captain.getUsername();
+            data[i][2] = ship.getType();
+            data[i][3] = ship.getCapacity();
+            data[i][4] = request.getArrivalDate();
+            data[i][5] = docked ? "Yes" : "No";
         }
 
-        JTable arrivalTable = new JTable(data, columns);
+        JTable arrivalTable =
+                new JTable(data, columns);
 
-        JScrollPane scrollPane = new JScrollPane(arrivalTable);
+        JScrollPane scrollPane =
+                new JScrollPane(arrivalTable);
 
-        JButton backButton = new JButton("Back");
+        JButton backButton =
+                new JButton("Back");
 
         styleButton(backButton, buttonColor);
 
-        JPanel bottomPanel = new JPanel();
+        JPanel bottomPanel =
+                new JPanel();
+
         bottomPanel.setBackground(backgroundColor);
 
         bottomPanel.add(backButton);
@@ -83,11 +119,16 @@ public class ViewArrivalSchedulePage extends JFrame {
         setVisible(true);
     }
 
-    private void styleButton(JButton button, Color color) {
+    private void styleButton(JButton button,
+                             Color color) {
 
         button.setBackground(color);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setFont(
+                new Font("Arial",
+                        Font.BOLD,
+                        14)
+        );
     }
 }

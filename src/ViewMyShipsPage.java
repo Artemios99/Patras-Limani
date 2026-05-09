@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class ViewMyShipsPage extends JFrame {
 
@@ -10,7 +11,7 @@ public class ViewMyShipsPage extends JFrame {
         this.user = user;
 
         setTitle("View My Ships");
-        setSize(700, 400);
+        setSize(750, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -27,16 +28,28 @@ public class ViewMyShipsPage extends JFrame {
 
         String[] columns = {
                 "ID",
+                "Ship Code",
                 "Name",
                 "Type",
                 "Capacity",
                 "Captain ID"
         };
 
-        Object[][] data = {
-                {1, "Poseidon", "Cargo", 5000, 2},
-                {2, "Aegean Star", "Passenger", 800, 3}
-        };
+        ShipService shipService = new ShipService();
+        ArrayList<Ship> ships = shipService.getShipsByOwnerId(user.getId());
+
+        Object[][] data = new Object[ships.size()][6];
+
+        for (int i = 0; i < ships.size(); i++) {
+            Ship ship = ships.get(i);
+
+            data[i][0] = ship.getId();
+            data[i][1] = ship.getShipCode();
+            data[i][2] = ship.getName();
+            data[i][3] = ship.getType();
+            data[i][4] = ship.getCapacity();
+            data[i][5] = ship.getCaptainId();
+        }
 
         JTable table = new JTable(data, columns);
         JScrollPane scrollPane = new JScrollPane(table);
