@@ -8,28 +8,46 @@ public class PortEntryRequestService {
 
     public boolean createRequest(PortEntryRequests request) {
 
-        String sql = "INSERT INTO port_entry_requests " +
-                "(ship_id, captain_id, arrival_date, status) " +
-                "VALUES (?, ?, ?, ?)";
+    String checkSql =
+            "SELECT * FROM port_entry_requests WHERE ship_id = ?";
 
-        try (Connection conn = DatabaseManager.connect();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    String insertSql =
+            "INSERT INTO port_entry_requests " +
+            "(ship_id, captain_id, arrival_date, status) " +
+            "VALUES (?, ?, ?, ?)";
 
-            pstmt.setInt(1, request.getShipId());
-            pstmt.setInt(2, request.getCaptainId());
-            pstmt.setString(3, request.getArrivalDate());
-            pstmt.setString(4, request.getStatus());
+    try (Connection conn = DatabaseManager.connect()) {
 
-            pstmt.executeUpdate();
+        try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+
+            checkStmt.setInt(1, request.getShipId());
+
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("Port entry request already exists for this ship.");
+                return false;
+            }
+        }
+
+        try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+
+            insertStmt.setInt(1, request.getShipId());
+            insertStmt.setInt(2, request.getCaptainId());
+            insertStmt.setString(3, request.getArrivalDate());
+            insertStmt.setString(4, request.getStatus());
+
+            insertStmt.executeUpdate();
 
             System.out.println("Port entry request created successfully!");
             return true;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
         }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
     }
+}
 
     public ArrayList<PortEntryRequests> getAllRequests() {
 

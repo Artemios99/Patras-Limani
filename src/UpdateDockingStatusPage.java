@@ -1,16 +1,18 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class UpdateDockingStatusPage extends JFrame {
 
     private User user;
+    private JTable table;
 
     public UpdateDockingStatusPage(User user) {
 
         this.user = user;
 
         setTitle("Update Docking Status");
-        setSize(700, 400);
+        setSize(850, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -25,29 +27,57 @@ public class UpdateDockingStatusPage extends JFrame {
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 24));
 
-        String[] columns = {"Dock ID", "Dock Number", "Ship ID", "Status"};
-
-        Object[][] data = {
-                {1, 1, 3, "available"},
-                {2, 2, 5, "occupied"}
+        String[] columns = {
+                "Dock Number",
+                "Ship Code",
+                "Ship Name",
+                "Ship Type",
+                "Capacity",
+                "Status"
         };
 
-        JTable table = new JTable(data, columns);
+        DockService dockService = new DockService();
+        ShipService shipService = new ShipService();
 
-        JButton setAvailableButton = new JButton("Set Available");
-        JButton setOccupiedButton = new JButton("Set Occupied");
+        ArrayList<Dock> assignedDocks = dockService.getAssignedDocks();
+
+        Object[][] data = new Object[assignedDocks.size()][6];
+
+        for (int i = 0; i < assignedDocks.size(); i++) {
+
+            Dock dock = assignedDocks.get(i);
+            Ship ship = shipService.getShipById(dock.getCurrentShipId());
+
+            data[i][0] = dock.getNumber();
+
+            if (ship != null) {
+                data[i][1] = ship.getShipCode();
+                data[i][2] = ship.getName();
+                data[i][3] = ship.getType();
+                data[i][4] = ship.getCapacity();
+            } else {
+                data[i][1] = "-";
+                data[i][2] = "Unknown";
+                data[i][3] = "-";
+                data[i][4] = "-";
+            }
+
+            data[i][5] = dock.getStatus();
+        }
+
+        table = new JTable(data, columns);
+
+        JButton markDockedButton = new JButton("Mark As Docked");
         JButton backButton = new JButton("Back");
 
-        styleButton(setAvailableButton, buttonColor);
-        styleButton(setOccupiedButton, buttonColor);
+        styleButton(markDockedButton, buttonColor);
         styleButton(backButton, buttonColor);
 
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 3, 15, 15));
+        JPanel bottomPanel = new JPanel(new GridLayout(1, 2, 15, 15));
         bottomPanel.setBackground(backgroundColor);
 
         bottomPanel.add(backButton);
-        bottomPanel.add(setAvailableButton);
-        bottomPanel.add(setOccupiedButton);
+        bottomPanel.add(markDockedButton);
 
         mainPanel.add(title, BorderLayout.NORTH);
         mainPanel.add(new JScrollPane(table), BorderLayout.CENTER);
@@ -55,8 +85,34 @@ public class UpdateDockingStatusPage extends JFrame {
 
         add(mainPanel);
 
-        setAvailableButton.addActionListener(e -> updateStatus(table, "available"));
-        setOccupiedButton.addActionListener(e -> updateStatus(table, "occupied"));
+        markDockedButton.addActionListener(e -> {
+
+            int selectedRow = table.getSelectedRow();
+
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Please select an assigned dock.");
+                return;
+            }
+
+            int dockNumber = (int) table.getValueAt(selectedRow, 0);
+
+            boolean success = dockService.markAsDocked(dockNumber);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Dock marked as docked.");
+
+                dispose();
+                new UpdateDockingStatusPage(user);
+
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Update failed.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
 
         backButton.addActionListener(e -> {
             dispose();
@@ -64,19 +120,6 @@ public class UpdateDockingStatusPage extends JFrame {
         });
 
         setVisible(true);
-    }
-
-    private void updateStatus(JTable table, String status) {
-        int selectedRow = table.getSelectedRow();
-
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a dock first.");
-            return;
-        }
-
-        table.setValueAt(status, selectedRow, 3);
-
-        JOptionPane.showMessageDialog(this, "Dock status updated to: " + status);
     }
 
     private void styleButton(JButton button, Color color) {

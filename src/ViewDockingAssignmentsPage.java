@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class ViewDockingAssignmentsPage extends JFrame {
 
@@ -10,7 +11,7 @@ public class ViewDockingAssignmentsPage extends JFrame {
         this.user = user;
 
         setTitle("View Docking Assignments");
-        setSize(700, 400);
+        setSize(850, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -25,12 +26,43 @@ public class ViewDockingAssignmentsPage extends JFrame {
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 24));
 
-        String[] columns = {"Dock ID", "Dock Number", "Ship ID", "Status"};
-
-        Object[][] data = {
-                {1, 1, 3, "occupied"},
-                {2, 2, 5, "occupied"}
+        String[] columns = {
+                "Dock Number",
+                "Ship Code",
+                "Ship Name",
+                "Ship Type",
+                "Capacity",
+                "Status"
         };
+
+        DockService dockService = new DockService();
+        ShipService shipService = new ShipService();
+
+        ArrayList<Dock> assignedDocks = dockService.getAssignedDocks();
+
+        Object[][] data = new Object[assignedDocks.size()][6];
+
+        for (int i = 0; i < assignedDocks.size(); i++) {
+
+            Dock dock = assignedDocks.get(i);
+            Ship ship = shipService.getShipById(dock.getCurrentShipId());
+
+            data[i][0] = dock.getNumber();
+
+            if (ship != null) {
+                data[i][1] = ship.getShipCode();
+                data[i][2] = ship.getName();
+                data[i][3] = ship.getType();
+                data[i][4] = ship.getCapacity();
+            } else {
+                data[i][1] = "-";
+                data[i][2] = "Unknown";
+                data[i][3] = "-";
+                data[i][4] = "-";
+            }
+
+            data[i][5] = dock.getStatus();
+        }
 
         JTable table = new JTable(data, columns);
 

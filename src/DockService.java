@@ -9,7 +9,7 @@ public class DockService {
     public boolean addDock(Dock dock) {
 
         String sql = "INSERT INTO docks (number, status, current_ship_id) " +
-                     "VALUES (?, ?, ?)";
+                "VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -34,121 +34,218 @@ public class DockService {
         }
     }
 
-public boolean assignDock(int dockNumber, int shipId) {
+    public boolean assignDock(int dockNumber, int shipId) {
 
-    String checkSql =
-            "SELECT * FROM docks WHERE current_ship_id = ? AND status = 'occupied'";
+        String checkSql =
+                "SELECT * FROM docks WHERE current_ship_id = ? AND status IN ('assigned','docked')";
 
-    String updateSql =
-            "UPDATE docks " +
-            "SET status = 'occupied', current_ship_id = ? " +
-            "WHERE number = ? AND status = 'available'";
+        String updateSql =
+                "UPDATE docks " +
+                        "SET status = 'assigned', current_ship_id = ? " +
+                        "WHERE number = ? AND status = 'available'";
 
-    try (Connection conn = DatabaseManager.connect()) {
+        try (Connection conn = DatabaseManager.connect()) {
 
-        try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, shipId);
 
-            checkStmt.setInt(1, shipId);
+                ResultSet rs = checkStmt.executeQuery();
 
-            ResultSet rs = checkStmt.executeQuery();
-
-            if (rs.next()) {
-                System.out.println("Ship is already assigned to a dock!");
-                return false;
+                if (rs.next()) {
+                    System.out.println("Ship is already assigned or docked!");
+                    return false;
+                }
             }
+
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                updateStmt.setInt(1, shipId);
+                updateStmt.setInt(2, dockNumber);
+
+                return updateStmt.executeUpdate() > 0;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-
-        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-
-            updateStmt.setInt(1, shipId);
-            updateStmt.setInt(2, dockNumber);
-
-            int rowsUpdated = updateStmt.executeUpdate();
-
-            return rowsUpdated > 0;
-        }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
-    }
-}
-
-public ArrayList<Dock> getAllDocks() {
-
-    ArrayList<Dock> docks = new ArrayList<>();
-
-    String sql = "SELECT * FROM docks ORDER BY number";
-
-    try (Connection conn = DatabaseManager.connect();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-        ResultSet rs = pstmt.executeQuery();
-
-        while (rs.next()) {
-
-            Dock dock = new Dock(
-                    rs.getInt("id"),
-                    rs.getInt("number"),
-                    rs.getString("status"),
-                    rs.getInt("current_ship_id")
-            );
-
-            docks.add(dock);
-        }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
 
-    return docks;
-}
+    public ArrayList<Dock> getAllDocks() {
 
-public ArrayList<Dock> getOccupiedDocks() {
+        ArrayList<Dock> docks = new ArrayList<>();
 
-    ArrayList<Dock> docks = new ArrayList<>();
+        String sql = "SELECT * FROM docks ORDER BY number";
 
-    String sql = "SELECT * FROM docks WHERE status = 'occupied'";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    try (Connection conn = DatabaseManager.connect();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
 
-        ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                docks.add(new Dock(
+                        rs.getInt("id"),
+                        rs.getInt("number"),
+                        rs.getString("status"),
+                        getNullableInt(rs, "current_ship_id")
+                ));
+            }
 
-        while (rs.next()) {
-            Dock dock = new Dock(
-                    rs.getInt("id"),
-                    rs.getInt("number"),
-                    rs.getString("status"),
-                    rs.getInt("current_ship_id")
-            );
-
-            docks.add(dock);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return docks;
     }
 
-    return docks;
-}
+    public ArrayList<Dock> getAssignedDocks() {
 
-public boolean isShipDocked(int shipId) {
+        ArrayList<Dock> docks = new ArrayList<>();
 
-    String sql = "SELECT * FROM docks WHERE current_ship_id = ? AND status = 'occupied'";
+        String sql = "SELECT * FROM docks WHERE status = 'assigned' ORDER BY number";
 
-    try (Connection conn = DatabaseManager.connect();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        pstmt.setInt(1, shipId);
+            ResultSet rs = pstmt.executeQuery();
 
-        ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                docks.add(new Dock(
+                        rs.getInt("id"),
+                        rs.getInt("number"),
+                        rs.getString("status"),
+                        getNullableInt(rs, "current_ship_id")
+                ));
+            }
 
-        return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
+        return docks;
     }
-}
+
+    public ArrayList<Dock> getDockedDocks() {
+
+        ArrayList<Dock> docks = new ArrayList<>();
+
+        String sql = "SELECT * FROM docks WHERE status = 'docked' ORDER BY number";
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                docks.add(new Dock(
+                        rs.getInt("id"),
+                        rs.getInt("number"),
+                        rs.getString("status"),
+                        getNullableInt(rs, "current_ship_id")
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return docks;
+    }
+
+    public ArrayList<Dock> getOccupiedDocks() {
+        // Για παλιές σελίδες που το χρησιμοποιούν:
+        // επιστρέφει και assigned και docked.
+        ArrayList<Dock> docks = new ArrayList<>();
+
+        String sql = "SELECT * FROM docks WHERE status IN ('assigned','docked') ORDER BY number";
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                docks.add(new Dock(
+                        rs.getInt("id"),
+                        rs.getInt("number"),
+                        rs.getString("status"),
+                        getNullableInt(rs, "current_ship_id")
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return docks;
+    }
+
+    public boolean markAsDocked(int dockNumber) {
+
+        String sql =
+                "UPDATE docks SET status = 'docked' " +
+                        "WHERE number = ? AND status = 'assigned'";
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, dockNumber);
+
+            return pstmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean releaseDock(int dockNumber) {
+
+        String sql =
+                "UPDATE docks " +
+                        "SET status = 'available', current_ship_id = NULL " +
+                        "WHERE number = ? AND status = 'docked'";
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, dockNumber);
+
+            return pstmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isShipDocked(int shipId) {
+
+        String sql =
+                "SELECT * FROM docks " +
+                        "WHERE current_ship_id = ? AND status = 'docked'";
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, shipId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            return rs.next();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private Integer getNullableInt(ResultSet rs, String columnName) throws SQLException {
+        int value = rs.getInt(columnName);
+
+        if (rs.wasNull()) {
+            return null;
+        }
+
+        return value;
+    }
 }

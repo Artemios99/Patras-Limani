@@ -23,11 +23,7 @@ public class AssignDockingSpotPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
         mainPanel.setBackground(backgroundColor);
 
-        JLabel title = new JLabel(
-                "Assign Docking Spot",
-                SwingConstants.CENTER
-        );
-
+        JLabel title = new JLabel("Assign Docking Spot", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 24));
 
@@ -40,61 +36,38 @@ public class AssignDockingSpotPage extends JFrame {
 
         ShipService shipService = new ShipService();
         AuthService authService = new AuthService();
+        DockingRequestService requestService = new DockingRequestService();
 
-        DockingRequestService requestService =
-                new DockingRequestService();
+        ArrayList<DockingRequest> requests = requestService.getApprovedRequests();
 
-        ArrayList<DockingRequest> requests =
-                requestService.getApprovedRequests();
-
-        Object[][] data =
-                new Object[requests.size()][4];
+        Object[][] data = new Object[requests.size()][4];
 
         for (int i = 0; i < requests.size(); i++) {
 
-            DockingRequest request =
-                    requests.get(i);
+            DockingRequest request = requests.get(i);
 
-            Ship ship =
-                    shipService.getShipById(
-                            request.getShipId()
-                    );
-
-            User captain =
-                    authService.getUserById(
-                            request.getCaptainId()
-                    );
+            Ship ship = shipService.getShipById(request.getShipId());
+            User captain = authService.getUserById(request.getCaptainId());
 
             data[i][0] = request.getId();
-            data[i][1] = ship.getShipCode();
-            data[i][2] = captain.getUsername();
+            data[i][1] = ship != null ? ship.getShipCode() : "-";
+            data[i][2] = captain != null ? captain.getUsername() : "-";
             data[i][3] = request.getRequestedDate();
         }
 
-        requestTable =
-                new JTable(data, columns);
+        requestTable = new JTable(data, columns);
+        JScrollPane scrollPane = new JScrollPane(requestTable);
 
-        JScrollPane scrollPane =
-                new JScrollPane(requestTable);
-
-        JPanel bottomPanel =
-                new JPanel(new GridLayout(2,2,10,10));
-
+        JPanel bottomPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         bottomPanel.setBackground(backgroundColor);
 
-        JLabel dockLabel =
-                new JLabel("Dock Number:");
-
+        JLabel dockLabel = new JLabel("Dock Number:");
         dockLabel.setForeground(Color.WHITE);
 
-        JTextField dockField =
-                new JTextField();
+        JTextField dockField = new JTextField();
 
-        JButton assignButton =
-                new JButton("Assign Dock");
-
-        JButton backButton =
-                new JButton("Back");
+        JButton assignButton = new JButton("Assign Dock");
+        JButton backButton = new JButton("Back");
 
         styleButton(assignButton, buttonColor);
         styleButton(backButton, buttonColor);
@@ -112,87 +85,57 @@ public class AssignDockingSpotPage extends JFrame {
 
         assignButton.addActionListener(e -> {
 
-            int selectedRow =
-                    requestTable.getSelectedRow();
+            int selectedRow = requestTable.getSelectedRow();
 
             if (selectedRow == -1) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Please select a request."
-                );
-
+                JOptionPane.showMessageDialog(this, "Please select a request.");
                 return;
             }
 
-            String dockText =
-                    dockField.getText().trim();
+            String dockText = dockField.getText().trim();
 
             int dockNumber;
 
             try {
-
-                dockNumber =
-                        Integer.parseInt(dockText);
-
+                dockNumber = Integer.parseInt(dockText);
             } catch (NumberFormatException ex) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Dock number must be a number."
-                );
-
+                JOptionPane.showMessageDialog(this, "Dock number must be a number.");
                 return;
             }
 
-            int requestId =
-                    (int) requestTable.getValueAt(
-                            selectedRow,
-                            0
-                    );
+            int requestId = (int) requestTable.getValueAt(selectedRow, 0);
 
-            DockingRequest selectedRequest =
-                    requestService.getRequestById(
-                            requestId
-                    );
+            DockingRequest selectedRequest = requestService.getRequestById(requestId);
 
             if (selectedRequest == null) {
-
                 JOptionPane.showMessageDialog(
                         this,
                         "Request not found.",
                         "Error",
                         JOptionPane.ERROR_MESSAGE
                 );
-
                 return;
             }
 
-            int shipId =
-                    selectedRequest.getShipId();
+            int shipId = selectedRequest.getShipId();
 
-            DockService dockService =
-                    new DockService();
+            DockService dockService = new DockService();
 
-            boolean success =
-                    dockService.assignDock(
-                            dockNumber,
-                            shipId
-                    );
+            boolean success = dockService.assignDock(dockNumber, shipId);
 
             if (success) {
-
                 JOptionPane.showMessageDialog(
                         this,
-                        "Dock " + dockNumber +
-                                " assigned successfully!"
+                        "Dock " + dockNumber + " assigned successfully!"
                 );
 
-            } else {
+                dispose();
+                new AssignDockingSpotPage(user);
 
+            } else {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Assignment failed. Dock may not exist or is already occupied.",
+                        "Assignment failed. Dock may not exist, may not be available, or ship is already assigned/docked.",
                         "Error",
                         JOptionPane.ERROR_MESSAGE
                 );
@@ -200,25 +143,18 @@ public class AssignDockingSpotPage extends JFrame {
         });
 
         backButton.addActionListener(e -> {
-
             dispose();
-
             new PortAuthorityDashboard(user);
         });
 
         setVisible(true);
     }
 
-    private void styleButton(JButton button,
-                             Color color) {
+    private void styleButton(JButton button, Color color) {
 
         button.setBackground(color);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setFont(
-                new Font("Arial",
-                        Font.BOLD,
-                        14)
-        );
+        button.setFont(new Font("Arial", Font.BOLD, 14));
     }
 }

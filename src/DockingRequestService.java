@@ -8,22 +8,36 @@ public class DockingRequestService {
 
     public boolean createRequest(DockingRequest request) {
 
-        String sql = "INSERT INTO docking_requests " +
+        String checkSql = "SELECT * FROM docking_requests WHERE ship_id = ?";
+
+        String insertSql = "INSERT INTO docking_requests " +
                 "(ship_id, captain_id, requested_date, status) " +
                 "VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseManager.connect()) {
 
-            pstmt.setInt(1, request.getShipId());
-            pstmt.setInt(2, request.getCaptainId());
-            pstmt.setString(3, request.getRequestedDate());
-            pstmt.setString(4, request.getStatus());
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, request.getShipId());
 
-            pstmt.executeUpdate();
+                ResultSet rs = checkStmt.executeQuery();
 
-            System.out.println("Docking request created successfully!");
-            return true;
+                if (rs.next()) {
+                    System.out.println("Docking request already exists for this ship.");
+                    return false;
+                }
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+                pstmt.setInt(1, request.getShipId());
+                pstmt.setInt(2, request.getCaptainId());
+                pstmt.setString(3, request.getRequestedDate());
+                pstmt.setString(4, request.getStatus());
+
+                pstmt.executeUpdate();
+
+                System.out.println("Docking request created successfully!");
+                return true;
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -40,7 +54,7 @@ public class DockingRequestService {
                 "WHERE status = 'yes' " +
                 "AND ship_id NOT IN (" +
                 "SELECT current_ship_id FROM docks " +
-                "WHERE status = 'occupied' AND current_ship_id IS NOT NULL" +
+                "WHERE status IN ('assigned','docked') AND current_ship_id IS NOT NULL" +
                 ")";
 
         try (Connection conn = DatabaseManager.connect();
@@ -79,7 +93,6 @@ public class DockingRequestService {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-
                 DockingRequest request = new DockingRequest(
                         rs.getInt("id"),
                         rs.getInt("ship_id"),
@@ -108,9 +121,7 @@ public class DockingRequestService {
             pstmt.setString(1, status);
             pstmt.setInt(2, requestId);
 
-            int rowsUpdated = pstmt.executeUpdate();
-
-            return rowsUpdated > 0;
+            return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,16 +1,18 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class ReleaseDockPage extends JFrame {
 
     private User user;
+    private JTable table;
 
     public ReleaseDockPage(User user) {
 
         this.user = user;
 
         setTitle("Release Dock");
-        setSize(700, 400);
+        setSize(850, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -25,14 +27,45 @@ public class ReleaseDockPage extends JFrame {
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Arial", Font.BOLD, 24));
 
-        String[] columns = {"Dock ID", "Dock Number", "Ship ID", "Status"};
-
-        Object[][] data = {
-                {1, 1, 3, "occupied"},
-                {2, 2, 5, "occupied"}
+        String[] columns = {
+                "Dock Number",
+                "Ship Code",
+                "Ship Name",
+                "Ship Type",
+                "Capacity",
+                "Status"
         };
 
-        JTable table = new JTable(data, columns);
+        DockService dockService = new DockService();
+        ShipService shipService = new ShipService();
+
+        ArrayList<Dock> dockedDocks = dockService.getDockedDocks();
+
+        Object[][] data = new Object[dockedDocks.size()][6];
+
+        for (int i = 0; i < dockedDocks.size(); i++) {
+
+            Dock dock = dockedDocks.get(i);
+            Ship ship = shipService.getShipById(dock.getCurrentShipId());
+
+            data[i][0] = dock.getNumber();
+
+            if (ship != null) {
+                data[i][1] = ship.getShipCode();
+                data[i][2] = ship.getName();
+                data[i][3] = ship.getType();
+                data[i][4] = ship.getCapacity();
+            } else {
+                data[i][1] = "-";
+                data[i][2] = "Unknown";
+                data[i][3] = "-";
+                data[i][4] = "-";
+            }
+
+            data[i][5] = dock.getStatus();
+        }
+
+        table = new JTable(data, columns);
 
         JButton releaseButton = new JButton("Release Selected Dock");
         JButton backButton = new JButton("Back");
@@ -53,17 +86,32 @@ public class ReleaseDockPage extends JFrame {
         add(mainPanel);
 
         releaseButton.addActionListener(e -> {
+
             int selectedRow = table.getSelectedRow();
 
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Please select a dock first.");
+                JOptionPane.showMessageDialog(this, "Please select a dock.");
                 return;
             }
 
-            table.setValueAt(null, selectedRow, 2);
-            table.setValueAt("available", selectedRow, 3);
+            int dockNumber = (int) table.getValueAt(selectedRow, 0);
 
-            JOptionPane.showMessageDialog(this, "Dock released successfully!");
+            boolean success = dockService.releaseDock(dockNumber);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Dock released successfully.");
+
+                dispose();
+                new ReleaseDockPage(user);
+
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Release failed.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
         });
 
         backButton.addActionListener(e -> {

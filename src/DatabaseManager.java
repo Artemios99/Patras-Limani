@@ -43,7 +43,7 @@ public class DatabaseManager {
         String docksTable = "CREATE TABLE IF NOT EXISTS docks (" +
         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
         "number INTEGER UNIQUE NOT NULL," +
-        "status TEXT NOT NULL CHECK(status IN ('available','occupied'))," +
+        "status TEXT NOT NULL CHECK(status IN ('available','assigned','docked'))," +
         "current_ship_id INTEGER" +
         ");";
 
