@@ -15,20 +15,25 @@ public class RegisterShipPage extends JFrame {
 
         this.user = user;
 
-        setTitle("Register Ship");
-        setSize(500, 500);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        UIHelper.setupFrame(this, "Register Ship", 800, 650);
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JPanel panel = new JPanel(new GridLayout(8, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        panel.setBackground(backgroundColor);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        shipIdField = new JTextField();
-        nameField = new JTextField();
+        JLabel title = UIHelper.createTitle("Register Ship");
+        JLabel subtitle = UIHelper.createSubtitle(
+                "Add a new ship and connect it with its owner"
+        );
+
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
+
+        JPanel formPanel = UIHelper.createCardPanel(new GridBagLayout());
+
+        shipIdField = UIHelper.createTextField();
+        nameField = UIHelper.createTextField();
 
         String[] shipTypes = {
                 "Cargo",
@@ -36,35 +41,38 @@ public class RegisterShipPage extends JFrame {
                 "Passenger"
         };
 
-        typeBox = new JComboBox<>(shipTypes);
-        capacityField = new JTextField();
-        ownerUsernameField = new JTextField();
+        typeBox = UIHelper.createComboBox(shipTypes);
+        capacityField = UIHelper.createTextField();
+        ownerUsernameField = UIHelper.createTextField();
 
-        JButton registerButton = new JButton("Register Ship");
-        JButton backButton = new JButton("Back");
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        styleButton(registerButton, buttonColor);
-        styleButton(backButton, buttonColor);
+        addFormRow(formPanel, gbc, 0, "Ship ID (7 digits)", shipIdField);
+        addFormRow(formPanel, gbc, 1, "Ship Name", nameField);
+        addFormRow(formPanel, gbc, 2, "Ship Type", typeBox);
+        addFormRow(formPanel, gbc, 3, "Capacity", capacityField);
+        addFormRow(formPanel, gbc, 4, "Owner Username", ownerUsernameField);
 
-        addLabel(panel, "Ship ID (7 digits):");
-        panel.add(shipIdField);
+        JButton backButton = UIHelper.createBackButton();
+        JButton registerButton = UIHelper.createButton("Register Ship");
 
-        addLabel(panel, "Ship Name:");
-        panel.add(nameField);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        buttonPanel.setBackground(UIHelper.CARD);
+        buttonPanel.add(backButton);
+        buttonPanel.add(registerButton);
 
-        addLabel(panel, "Ship Type:");
-        panel.add(typeBox);
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1;
+        formPanel.add(buttonPanel, gbc);
 
-        addLabel(panel, "Capacity:");
-        panel.add(capacityField);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
 
-        addLabel(panel, "Owner Username:");
-        panel.add(ownerUsernameField);
-
-        panel.add(backButton);
-        panel.add(registerButton);
-
-        add(panel);
+        add(mainPanel);
 
         registerButton.addActionListener(e -> registerShip());
 
@@ -74,6 +82,27 @@ public class RegisterShipPage extends JFrame {
         });
 
         setVisible(true);
+    }
+
+    private void addFormRow(
+            JPanel panel,
+            GridBagConstraints gbc,
+            int row,
+            String labelText,
+            JComponent field
+    ) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+
+        panel.add(UIHelper.createLabel(labelText), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = row;
+        gbc.weightx = 1;
+
+        panel.add(field, gbc);
     }
 
     private void registerShip() {
@@ -212,20 +241,5 @@ public class RegisterShipPage extends JFrame {
                     JOptionPane.ERROR_MESSAGE
             );
         }
-    }
-
-    private void addLabel(JPanel panel, String text) {
-
-        JLabel label = new JLabel(text);
-        label.setForeground(Color.WHITE);
-        panel.add(label);
-    }
-
-    private void styleButton(JButton button, Color color) {
-
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
     }
 }
