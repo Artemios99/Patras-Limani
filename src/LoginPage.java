@@ -5,21 +5,27 @@ public class LoginPage extends JFrame {
 
     public LoginPage() {
 
-        setTitle("PATRAS LIMANI - Login");
-        setSize(450, 330);
+        UIHelper.setupFrame(this, "PATRAS LIMANI - Login", 750, 660);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JLabel title = new JLabel("PATRAS LIMANI", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 22));
+        JPanel headerPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JLabel appTitle = UIHelper.createTitle("PATRAS LIMANI");
+        JLabel subtitle = UIHelper.createSubtitle("Port Management System");
 
-        JTextField usernameField = new JTextField();
-        JPasswordField passwordField = new JPasswordField();
+        headerPanel.add(appTitle);
+        headerPanel.add(subtitle);
+
+        JPanel cardPanel = UIHelper.createCardPanel(new BorderLayout(15, 15));
+
+        JLabel loginTitle = UIHelper.createTitle("Login");
+        cardPanel.add(loginTitle, BorderLayout.NORTH);
+
+        JTextField usernameField = UIHelper.createTextField();
+        JPasswordField passwordField = UIHelper.createPasswordField();
 
         String[] roles = {
                 "Captain",
@@ -28,33 +34,70 @@ public class LoginPage extends JFrame {
                 "PortAuthorityManager"
         };
 
-        JComboBox<String> roleBox = new JComboBox<>(roles);
+        JComboBox<String> roleBox = UIHelper.createComboBox(roles);
 
-        formPanel.add(new JLabel("Username:"));
-        formPanel.add(usernameField);
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(UIHelper.CARD);
 
-        formPanel.add(new JLabel("Password:"));
-        formPanel.add(passwordField);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        formPanel.add(new JLabel("Role:"));
-        formPanel.add(roleBox);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        formPanel.add(UIHelper.createLabel("Username"), gbc);
 
-        JButton loginButton = new JButton("Login");
-        JButton registerButton = new JButton("Register User");
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        formPanel.add(usernameField, gbc);
 
-        JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
-        bottomPanel.add(loginButton, BorderLayout.CENTER);
-        bottomPanel.add(registerButton, BorderLayout.EAST);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        formPanel.add(UIHelper.createLabel("Password"), gbc);
 
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(formPanel, BorderLayout.CENTER);
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        formPanel.add(passwordField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 0;
+        formPanel.add(UIHelper.createLabel("Role"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        formPanel.add(roleBox, gbc);
+
+        JButton loginButton = UIHelper.createButton("Login");
+
+        JPanel loginButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        loginButtonPanel.setBackground(UIHelper.CARD);
+        loginButtonPanel.add(loginButton);
+
+        cardPanel.add(formPanel, BorderLayout.CENTER);
+        cardPanel.add(loginButtonPanel, BorderLayout.SOUTH);
+
+        JButton registerButton = UIHelper.createButton("Register");
+        JLabel newUserLabel = UIHelper.createSubtitle("New User?");
+
+        JPanel registerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        registerPanel.setBackground(UIHelper.BACKGROUND);
+        registerPanel.add(newUserLabel);
+        registerPanel.add(registerButton);
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(cardPanel, BorderLayout.CENTER);
+        mainPanel.add(registerPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
 
         loginButton.addActionListener(e -> {
 
-            String username = usernameField.getText();
+            String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword());
             String role = (String) roleBox.getSelectedItem();
 
@@ -90,7 +133,12 @@ public class LoginPage extends JFrame {
                 }
 
             } else {
-                JOptionPane.showMessageDialog(this, "Wrong username, password or role!");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Wrong username, password or role!",
+                        "Login Failed",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 

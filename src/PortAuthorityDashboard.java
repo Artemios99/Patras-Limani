@@ -5,43 +5,99 @@ public class PortAuthorityDashboard extends JFrame {
 
     public PortAuthorityDashboard(User user) {
 
-        setTitle("Port Authority Dashboard");
-        setSize(700, 500);
+        UIHelper.setupFrame(this, "Port Authority Dashboard", 1100, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(backgroundColor);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JLabel title = new JLabel(
-                "Welcome Port Authority " + user.getName(),
-                SwingConstants.CENTER
+        JLabel title =
+                UIHelper.createTitle("Port Authority Dashboard");
+
+        JLabel welcome =
+                UIHelper.createSubtitle(
+                        "Welcome back, " + user.getName()
+                );
+
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(welcome, BorderLayout.SOUTH);
+
+        JPanel cardPanel =
+                UIHelper.createCardPanel(
+                        new GridLayout(2, 3, 22, 22)
+                );
+
+        JButton manageEntryRequestsButton =
+                createDashboardButton(
+                        "Manage Requests",
+                        "Approve or reject entry and docking requests"
+                );
+
+        JButton assignDockingSpotButton =
+                createDashboardButton(
+                        "Assign Dock",
+                        "Assign available docks to approved ships"
+                );
+
+        JButton viewDockStatusButton =
+                createDashboardButton(
+                        "Dock Status",
+                        "View all dock positions and ship assignments"
+                );
+
+        JButton viewArrivalScheduleButton =
+                createDashboardButton(
+                        "Arrival Schedule",
+                        "Monitor approved arrivals and docking status"
+                );
+
+        JButton viewPaymentsOverviewButton =
+                createDashboardButton(
+                        "Payments Overview",
+                        "Track all ship payments and unpaid fees"
+                );
+
+        JButton systemOverviewButton =
+                createDashboardButton(
+                        "System Overview",
+                        "Monitor overall port activity"
+                );
+
+        cardPanel.add(manageEntryRequestsButton);
+        cardPanel.add(assignDockingSpotButton);
+        cardPanel.add(viewDockStatusButton);
+        cardPanel.add(viewArrivalScheduleButton);
+        cardPanel.add(viewPaymentsOverviewButton);
+        cardPanel.add(systemOverviewButton);
+
+        JButton logoutButton = new JButton("Logout");
+
+        logoutButton.setBackground(new Color(210, 55, 65));
+        logoutButton.setForeground(Color.WHITE);
+
+        logoutButton.setFocusPainted(false);
+        logoutButton.setBorderPainted(false);
+
+        logoutButton.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
         );
 
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 28));
+        logoutButton.setPreferredSize(
+                new Dimension(130, 42)
+        );
 
-        JPanel menuPanel = new JPanel(new GridLayout(5, 1, 15, 15));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(40, 180, 40, 180));
-        menuPanel.setBackground(backgroundColor);
+        JPanel bottomPanel =
+                new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        JButton manageEntryRequestsButton = createButton("Manage Entry Requests", buttonColor);
-        JButton assignDockingSpotButton = createButton("Assign Docking Spot", buttonColor);
-        JButton viewDockStatusButton = createButton("View Dock Status", buttonColor);
-        JButton viewArrivalScheduleButton = createButton("View Arrival Schedule", buttonColor);
-        JButton viewPaymentsOverviewButton = createButton("View Payments Overview", buttonColor);
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
 
-        menuPanel.add(manageEntryRequestsButton);
-        menuPanel.add(assignDockingSpotButton);
-        menuPanel.add(viewDockStatusButton);
-        menuPanel.add(viewArrivalScheduleButton);
-        menuPanel.add(viewPaymentsOverviewButton);
+        bottomPanel.add(logoutButton);
 
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(menuPanel, BorderLayout.CENTER);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(cardPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
 
@@ -69,18 +125,49 @@ public class PortAuthorityDashboard extends JFrame {
             dispose();
             new ViewPaymentsOverviewPage(user);
         });
-        
+
+        systemOverviewButton.addActionListener(e -> {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "System overview feature coming soon."
+            );
+        });
+
+        logoutButton.addActionListener(e -> {
+            dispose();
+            new LoginPage();
+        });
+
         setVisible(true);
     }
 
-    private JButton createButton(String text, Color color) {
+    private JButton createDashboardButton(
+            String title,
+            String description
+    ) {
 
-        JButton button = new JButton(text);
+        JButton button = new JButton(
+                "<html><center><b style='font-size:16px;'>"
+                        + title +
+                        "</b><br><span style='font-size:11px;'>"
+                        + description +
+                        "</span></center></html>"
+        );
 
-        button.setBackground(color);
+        button.setBackground(UIHelper.PRIMARY);
         button.setForeground(Color.WHITE);
+
         button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                new Cursor(Cursor.HAND_CURSOR)
+        );
+
+        button.setFont(
+                new Font("Segoe UI", Font.BOLD, 15)
+        );
 
         return button;
     }

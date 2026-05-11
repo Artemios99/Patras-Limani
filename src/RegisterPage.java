@@ -5,22 +5,21 @@ public class RegisterPage extends JFrame {
 
     public RegisterPage() {
 
-        setTitle("Register User");
-        setSize(500, 500);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        UIHelper.setupFrame(this, "Register User", 650, 650);
 
-        JPanel panel = new JPanel(new GridLayout(9, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        // Fields
-        JTextField nameField = new JTextField();
-        JTextField surnameField = new JTextField();
-        JTextField phoneField = new JTextField();
-        JTextField emailField = new JTextField();
-        JTextField dobField = new JTextField();
-        JTextField usernameField = new JTextField();
-        JPasswordField passwordField = new JPasswordField();
+        JLabel title = UIHelper.createTitle("Register User");
+
+        JPanel panel = UIHelper.createCardPanel(new GridLayout(9, 2, 12, 12));
+
+        JTextField nameField = UIHelper.createTextField();
+        JTextField surnameField = UIHelper.createTextField();
+        JTextField phoneField = UIHelper.createTextField();
+        JTextField emailField = UIHelper.createTextField();
+        JTextField dobField = UIHelper.createTextField();
+        JTextField usernameField = UIHelper.createTextField();
+        JPasswordField passwordField = UIHelper.createPasswordField();
 
         String[] roles = {
                 "Captain",
@@ -29,66 +28,112 @@ public class RegisterPage extends JFrame {
                 "PortAuthorityManager"
         };
 
-        JComboBox<String> roleBox = new JComboBox<>(roles);
+        JComboBox<String> roleBox = UIHelper.createComboBox(roles);
 
-        // Labels + Fields
-        panel.add(new JLabel("Name:"));
+        panel.add(UIHelper.createLabel("Name"));
         panel.add(nameField);
 
-        panel.add(new JLabel("Surname:"));
+        panel.add(UIHelper.createLabel("Surname"));
         panel.add(surnameField);
 
-        panel.add(new JLabel("Phone:"));
+        panel.add(UIHelper.createLabel("Phone"));
         panel.add(phoneField);
 
-        panel.add(new JLabel("Email:"));
+        panel.add(UIHelper.createLabel("Email"));
         panel.add(emailField);
 
-        panel.add(new JLabel("Date of Birth:"));
+        panel.add(UIHelper.createLabel("Date of Birth"));
         panel.add(dobField);
 
-        panel.add(new JLabel("Username:"));
+        panel.add(UIHelper.createLabel("Username"));
         panel.add(usernameField);
 
-        panel.add(new JLabel("Password:"));
+        panel.add(UIHelper.createLabel("Password"));
         panel.add(passwordField);
 
-        panel.add(new JLabel("Role:"));
+        panel.add(UIHelper.createLabel("Role"));
         panel.add(roleBox);
 
-        JButton registerButton = new JButton("Register");
+        JButton backButton = UIHelper.createBackButton();
+        JButton registerButton = UIHelper.createButton("Register");
 
-        panel.add(new JLabel());
+        panel.add(backButton);
         panel.add(registerButton);
 
-        add(panel);
+        mainPanel.add(title, BorderLayout.NORTH);
+        mainPanel.add(panel, BorderLayout.CENTER);
 
-        // Register button action
+        add(mainPanel);
+
         registerButton.addActionListener(e -> {
 
+            String name = nameField.getText().trim();
+            String surname = surnameField.getText().trim();
+            String phone = phoneField.getText().trim();
+            String email = emailField.getText().trim();
+            String dob = dobField.getText().trim();
+            String username = usernameField.getText().trim();
+            String password = new String(passwordField.getPassword()).trim();
             String role = (String) roleBox.getSelectedItem();
+
+            if (name.isEmpty() || surname.isEmpty() || phone.isEmpty() ||
+                    email.isEmpty() || dob.isEmpty() || username.isEmpty() ||
+                    password.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please fill in all fields.",
+                        "Missing Information",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            AuthService authService = new AuthService();
+
+            User existingUsername = authService.getUserByUsername(username);
+
+            if (existingUsername != null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Username already exists. Please choose another username.",
+                        "Duplicate Username",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
 
             User user = new User(
                     role,
-                    nameField.getText(),
-                    surnameField.getText(),
-                    phoneField.getText(),
-                    emailField.getText(),
-                    dobField.getText(),
-                    usernameField.getText(),
-                    new String(passwordField.getPassword())
+                    name,
+                    surname,
+                    phone,
+                    email,
+                    dob,
+                    username,
+                    password
             );
-
-            AuthService authService = new AuthService();
 
             boolean success = authService.registerUser(user);
 
             if (success) {
-                JOptionPane.showMessageDialog(this, "User registered successfully!");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "User registered successfully!"
+                );
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Registration failed!");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Registration failed. Email may already exist.",
+                        "Registration Failed",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
+        });
+
+        backButton.addActionListener(e -> {
+            dispose();
         });
 
         setVisible(true);

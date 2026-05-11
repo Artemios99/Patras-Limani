@@ -5,36 +5,65 @@ public class ShipOwnerDashboard extends JFrame {
 
     public ShipOwnerDashboard(User user) {
 
-        setTitle("Ship Owner Dashboard");
-        setSize(700, 500);
+        UIHelper.setupFrame(this, "Ship Owner Dashboard", 900, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(backgroundColor);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JLabel title = new JLabel(
-                "Welcome Ship Owner " + user.getName(),
-                SwingConstants.CENTER
+        JLabel title = UIHelper.createTitle("Ship Owner Dashboard");
+
+        JLabel welcome = UIHelper.createSubtitle(
+                "Welcome back, " + user.getName()
         );
 
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 28));
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(welcome, BorderLayout.SOUTH);
 
-        JPanel menuPanel = new JPanel(new GridLayout(2, 1, 15, 15));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(100, 180, 100, 180));
-        menuPanel.setBackground(backgroundColor);
+        JPanel cardPanel = UIHelper.createCardPanel(
+                new GridLayout(1, 2, 25, 25)
+        );
 
-        JButton viewShipsButton = createButton("View My Ships", buttonColor);
-        JButton chargesButton = createButton("View And Pay Taxes", buttonColor);
+        JButton viewShipsButton = createDashboardButton(
+                "My Ships",
+                "View all ships registered under your ownership"
+        );
 
-        menuPanel.add(viewShipsButton);
-        menuPanel.add(chargesButton);
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(menuPanel, BorderLayout.CENTER);
+        JButton chargesButton = createDashboardButton(
+                "Charges & Payments",
+                "View and pay port entry and dock fees"
+        );
+
+        cardPanel.add(viewShipsButton);
+        cardPanel.add(chargesButton);
+
+        JButton logoutButton = new JButton("Logout");
+
+        logoutButton.setBackground(new Color(210, 55, 65));
+        logoutButton.setForeground(Color.WHITE);
+        logoutButton.setFocusPainted(false);
+        logoutButton.setBorderPainted(false);
+
+        logoutButton.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        logoutButton.setPreferredSize(
+                new Dimension(130, 42)
+        );
+
+        JPanel bottomPanel =
+                new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
+
+        bottomPanel.add(logoutButton);
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(cardPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
 
@@ -47,18 +76,41 @@ public class ShipOwnerDashboard extends JFrame {
             dispose();
             new ViewAndPayChargesPage(user);
         });
-        
+
+        logoutButton.addActionListener(e -> {
+            dispose();
+            new LoginPage();
+        });
+
         setVisible(true);
     }
 
-    private JButton createButton(String text, Color color) {
+    private JButton createDashboardButton(
+            String title,
+            String description
+    ) {
 
-        JButton button = new JButton(text);
+        JButton button = new JButton(
+                "<html><center><b style='font-size:16px;'>"
+                        + title +
+                        "</b><br><span style='font-size:11px;'>"
+                        + description +
+                        "</span></center></html>"
+        );
 
-        button.setBackground(color);
+        button.setBackground(UIHelper.PRIMARY);
         button.setForeground(Color.WHITE);
+
         button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                new Cursor(Cursor.HAND_CURSOR)
+        );
+
+        button.setFont(
+                new Font("Segoe UI", Font.BOLD, 15)
+        );
 
         return button;
     }

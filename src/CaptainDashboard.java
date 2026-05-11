@@ -5,56 +5,73 @@ public class CaptainDashboard extends JFrame {
 
     public CaptainDashboard(User user) {
 
-        setTitle("Captain Dashboard");
-        setSize(700, 550);
+        UIHelper.setupFrame(this, "Captain Dashboard", 900, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
-        Color logcolor = new Color(255, 1, 1);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(backgroundColor);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JLabel title = new JLabel(
-                "Welcome Captain " + user.getName(),
-                SwingConstants.CENTER
+        JLabel title = UIHelper.createTitle("Captain Dashboard");
+
+        JLabel welcome = UIHelper.createSubtitle(
+                "Welcome back, Captain " + user.getName()
         );
 
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 28));
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(welcome, BorderLayout.SOUTH);
 
-        JPanel menuPanel = new JPanel(new GridLayout(5, 1, 15, 15));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(50, 180, 50, 180));
-        menuPanel.setBackground(backgroundColor);
+        JPanel cardPanel = UIHelper.createCardPanel(new GridLayout(2, 2, 22, 22));
 
-        JButton registerShipButton =
-                createButton("Register Ship", buttonColor);
+        JButton registerShipButton = createDashboardButton(
+                "Register Ship",
+                "Add a new ship to the system"
+        );
 
-        JButton requestPortEntryButton =
-                createButton("Request Port Entry", buttonColor);
+        JButton requestPortEntryButton = createDashboardButton(
+                "Request Port Entry",
+                "Submit a port entry request"
+        );
 
-        JButton requestDockingButton =
-                createButton("Request Docking", buttonColor);
+        JButton requestDockingButton = createDashboardButton(
+                "Request Docking",
+                "Ask for a docking position"
+        );
 
-        JButton viewShipStatusButton =
-                createButton("View Ship Status", buttonColor);
+        JButton viewShipStatusButton = createDashboardButton(
+                "View Ship Status",
+                "Check request approvals and ship status"
+        );
 
-        JButton logoutButton =
-                createButton("Logout", logcolor);
+        cardPanel.add(registerShipButton);
+        cardPanel.add(requestPortEntryButton);
+        cardPanel.add(requestDockingButton);
+        cardPanel.add(viewShipStatusButton);
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setBackground(new Color(210, 55, 65));
+        logoutButton.setForeground(Color.WHITE);
+        logoutButton.setFocusPainted(false);
+        logoutButton.setBorderPainted(false);
+        logoutButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        logoutButton.setPreferredSize(new Dimension(130, 42));
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
+        bottomPanel.add(logoutButton);
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(cardPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        add(mainPanel);
 
         registerShipButton.addActionListener(e -> {
             dispose();
             new RegisterShipPage(user);
         });
 
-        
-
-        logoutButton.addActionListener(e -> {
-            dispose();
-            new LoginPage();
-        });
         requestPortEntryButton.addActionListener(e -> {
             dispose();
             new RequestPortEntryPage(user);
@@ -70,28 +87,30 @@ public class CaptainDashboard extends JFrame {
             new ViewShipStatusPage(user);
         });
 
-        menuPanel.add(registerShipButton);
-        menuPanel.add(requestPortEntryButton);
-        menuPanel.add(requestDockingButton);
-        menuPanel.add(viewShipStatusButton);
-        menuPanel.add(logoutButton);
-
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(menuPanel, BorderLayout.CENTER);
-
-        add(mainPanel);
+        logoutButton.addActionListener(e -> {
+            dispose();
+            new LoginPage();
+        });
 
         setVisible(true);
     }
 
-    private JButton createButton(String text, Color color) {
+    private JButton createDashboardButton(String title, String description) {
 
-        JButton button = new JButton(text);
+        JButton button = new JButton(
+                "<html><center><b style='font-size:16px;'>"
+                        + title +
+                        "</b><br><span style='font-size:11px;'>"
+                        + description +
+                        "</span></center></html>"
+        );
 
-        button.setBackground(color);
+        button.setBackground(UIHelper.PRIMARY);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 15));
 
         return button;
     }

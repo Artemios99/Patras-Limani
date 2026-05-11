@@ -5,39 +5,59 @@ public class DockWorkerDashboard extends JFrame {
 
     public DockWorkerDashboard(User user) {
 
-        setTitle("Dock Worker Dashboard");
-        setSize(700, 500);
+        UIHelper.setupFrame(this, "Dock Worker Dashboard", 900, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(backgroundColor);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JLabel title = new JLabel(
-                "Welcome Dock Worker " + user.getName(),
-                SwingConstants.CENTER
+        JLabel title = UIHelper.createTitle("Dock Worker Dashboard");
+
+        JLabel welcome = UIHelper.createSubtitle(
+                "Welcome back, Dock Worker " + user.getName()
         );
 
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 28));
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(welcome, BorderLayout.SOUTH);
 
-        JPanel menuPanel = new JPanel(new GridLayout(3, 1, 15, 15));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(70, 180, 70, 180));
-        menuPanel.setBackground(backgroundColor);
+        JPanel cardPanel = UIHelper.createCardPanel(new GridLayout(1, 3, 22, 22));
 
-        JButton viewAssignmentsButton = createButton("View Docking Assignments", buttonColor);
-        JButton updateStatusButton = createButton("Update Docking Status", buttonColor);
-        JButton releaseDockButton = createButton("Release Dock", buttonColor);
+        JButton viewAssignmentsButton = createDashboardButton(
+                "View Assignments",
+                "See docks assigned by Port Authority"
+        );
 
-        menuPanel.add(viewAssignmentsButton);
-        menuPanel.add(updateStatusButton);
-        menuPanel.add(releaseDockButton);
+        JButton updateStatusButton = createDashboardButton(
+                "Mark As Docked",
+                "Confirm that a ship is docked"
+        );
 
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(menuPanel, BorderLayout.CENTER);
+        JButton releaseDockButton = createDashboardButton(
+                "Release Dock",
+                "Free a dock after payment and departure"
+        );
+
+        cardPanel.add(viewAssignmentsButton);
+        cardPanel.add(updateStatusButton);
+        cardPanel.add(releaseDockButton);
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setBackground(new Color(210, 55, 65));
+        logoutButton.setForeground(Color.WHITE);
+        logoutButton.setFocusPainted(false);
+        logoutButton.setBorderPainted(false);
+        logoutButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        logoutButton.setPreferredSize(new Dimension(130, 42));
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
+        bottomPanel.add(logoutButton);
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(cardPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
 
@@ -56,17 +76,30 @@ public class DockWorkerDashboard extends JFrame {
             new ReleaseDockPage(user);
         });
 
+        logoutButton.addActionListener(e -> {
+            dispose();
+            new LoginPage();
+        });
+
         setVisible(true);
     }
 
-    private JButton createButton(String text, Color color) {
+    private JButton createDashboardButton(String title, String description) {
 
-        JButton button = new JButton(text);
+        JButton button = new JButton(
+                "<html><center><b style='font-size:16px;'>"
+                        + title +
+                        "</b><br><span style='font-size:11px;'>"
+                        + description +
+                        "</span></center></html>"
+        );
 
-        button.setBackground(color);
+        button.setBackground(UIHelper.PRIMARY);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 15));
 
         return button;
     }
