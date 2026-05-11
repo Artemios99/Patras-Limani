@@ -6,6 +6,7 @@ public class ReleaseDockPage extends JFrame {
 
     private User user;
     private JTable table;
+    private ArrayList<Dock> dockedDocks;
 
     public ReleaseDockPage(User user) {
 
@@ -39,7 +40,7 @@ public class ReleaseDockPage extends JFrame {
         DockService dockService = new DockService();
         ShipService shipService = new ShipService();
 
-        ArrayList<Dock> dockedDocks = dockService.getDockedDocks();
+        dockedDocks = dockService.getDockedDocks();
 
         Object[][] data = new Object[dockedDocks.size()][6];
 
@@ -94,9 +95,48 @@ public class ReleaseDockPage extends JFrame {
                 return;
             }
 
-            int dockNumber = (int) table.getValueAt(selectedRow, 0);
+            Dock selectedDock = dockedDocks.get(selectedRow);
 
-            boolean success = dockService.releaseDock(dockNumber);
+            if (selectedDock.getCurrentShipId() == null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No ship is assigned to this dock.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            Ship ship = shipService.getShipById(selectedDock.getCurrentShipId());
+
+            if (ship == null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Ship not found.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            PaymentService paymentService = new PaymentService();
+
+            String paymentStatus = paymentService.getPaymentStatus(
+                    ship.getId(),
+                    ship.getOwnerId()
+            );
+
+            if (!paymentStatus.equals("paid")) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Cannot release dock.\nThe ship owner has not paid the charges yet.",
+                        "Payment Required",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            boolean success = dockService.releaseDock(selectedDock.getNumber());
 
             if (success) {
                 JOptionPane.showMessageDialog(this, "Dock released successfully.");

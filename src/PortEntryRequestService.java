@@ -128,4 +128,24 @@ public ArrayList<PortEntryRequests> getApprovedRequests() {
 
     return requests;
 }
+
+public boolean hasApprovedPortEntry(int shipId) {
+
+    String sql = "SELECT * FROM port_entry_requests WHERE ship_id = ? AND status = 'yes'";
+
+    try (Connection conn = DatabaseManager.connect();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setInt(1, shipId);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        return rs.next();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
 }

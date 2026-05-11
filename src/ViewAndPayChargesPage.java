@@ -41,8 +41,16 @@ public class ViewAndPayChargesPage extends JFrame {
         ShipService shipService = new ShipService();
         DockService dockService = new DockService();
         PaymentService paymentService = new PaymentService();
+        PortEntryRequestService portEntryService = new PortEntryRequestService();
 
-        ArrayList<Ship> ships = shipService.getShipsByOwnerId(user.getId());
+        ArrayList<Ship> allShips = shipService.getShipsByOwnerId(user.getId());
+        ArrayList<Ship> ships = new ArrayList<>();
+
+        for (Ship ship : allShips) {
+            if (portEntryService.hasApprovedPortEntry(ship.getId())) {
+                ships.add(ship);
+            }
+        }
 
         Object[][] data = new Object[ships.size()][8];
 
