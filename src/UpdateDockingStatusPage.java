@@ -4,28 +4,24 @@ import java.util.ArrayList;
 
 public class UpdateDockingStatusPage extends JFrame {
 
-    private User user;
     private JTable table;
 
     public UpdateDockingStatusPage(User user) {
 
-        this.user = user;
+        UIHelper.setupFrame(this, "Update Docking Status", 1000, 550);
 
-        setTitle("Update Docking Status");
-        setSize(850, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        mainPanel.setBackground(backgroundColor);
+        JLabel title = UIHelper.createTitle("Update Docking Status");
+        JLabel subtitle = UIHelper.createSubtitle(
+                "Select an assigned dock and mark its ship as docked"
+        );
 
-        JLabel title = new JLabel("Update Docking Status", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 24));
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
 
         String[] columns = {
                 "Dock Number",
@@ -67,20 +63,22 @@ public class UpdateDockingStatusPage extends JFrame {
 
         table = new JTable(data, columns);
 
-        JButton markDockedButton = new JButton("Mark As Docked");
-        JButton backButton = new JButton("Back");
+        JScrollPane scrollPane = UIHelper.styleTable(table);
 
-        styleButton(markDockedButton, buttonColor);
-        styleButton(backButton, buttonColor);
+        JPanel contentPanel = UIHelper.createCardPanel(new BorderLayout());
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 2, 15, 15));
-        bottomPanel.setBackground(backgroundColor);
+        JButton backButton = UIHelper.createBackButton();
+        JButton markDockedButton = UIHelper.createButton("Mark As Docked");
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
 
         bottomPanel.add(backButton);
         bottomPanel.add(markDockedButton);
 
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
@@ -120,12 +118,5 @@ public class UpdateDockingStatusPage extends JFrame {
         });
 
         setVisible(true);
-    }
-
-    private void styleButton(JButton button, Color color) {
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
     }
 }

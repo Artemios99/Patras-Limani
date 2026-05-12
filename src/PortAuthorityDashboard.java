@@ -59,18 +59,12 @@ public class PortAuthorityDashboard extends JFrame {
                         "Track all ship payments and unpaid fees"
                 );
 
-        JButton systemOverviewButton =
-                createDashboardButton(
-                        "System Overview",
-                        "Monitor overall port activity"
-                );
 
         cardPanel.add(manageEntryRequestsButton);
         cardPanel.add(assignDockingSpotButton);
         cardPanel.add(viewDockStatusButton);
         cardPanel.add(viewArrivalScheduleButton);
         cardPanel.add(viewPaymentsOverviewButton);
-        cardPanel.add(systemOverviewButton);
 
         JButton logoutButton = new JButton("Logout");
 
@@ -124,14 +118,6 @@ public class PortAuthorityDashboard extends JFrame {
         viewPaymentsOverviewButton.addActionListener(e -> {
             dispose();
             new ViewPaymentsOverviewPage(user);
-        });
-
-        systemOverviewButton.addActionListener(e -> {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "System overview feature coming soon."
-            );
         });
 
         logoutButton.addActionListener(e -> {

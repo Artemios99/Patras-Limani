@@ -4,28 +4,24 @@ import java.util.ArrayList;
 
 public class ViewAndPayChargesPage extends JFrame {
 
-    private User user;
     private JTable table;
 
     public ViewAndPayChargesPage(User user) {
 
-        this.user = user;
+        UIHelper.setupFrame(this, "View And Pay Charges", 1050, 600);
 
-        setTitle("View And Pay Charges");
-        setSize(950, 450);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        mainPanel.setBackground(backgroundColor);
+        JLabel title = UIHelper.createTitle("My Charges");
+        JLabel subtitle = UIHelper.createSubtitle(
+                "View approved charges and complete pending payments"
+        );
 
-        JLabel title = new JLabel("My Charges", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 24));
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
 
         String[] columns = {
                 "Ship ID",
@@ -73,22 +69,22 @@ public class ViewAndPayChargesPage extends JFrame {
         }
 
         table = new JTable(data, columns);
-        JScrollPane scrollPane = new JScrollPane(table);
 
-        JButton payButton = new JButton("PAY");
-        JButton backButton = new JButton("Back");
+        JScrollPane scrollPane = UIHelper.styleTable(table);
 
-        styleButton(payButton, buttonColor);
-        styleButton(backButton, buttonColor);
+        JPanel contentPanel = UIHelper.createCardPanel(new BorderLayout());
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 2, 15, 15));
-        bottomPanel.setBackground(backgroundColor);
+        JButton backButton = UIHelper.createBackButton();
+        JButton payButton = UIHelper.createButton("PAY");
 
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
         bottomPanel.add(backButton);
         bottomPanel.add(payButton);
 
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
@@ -154,12 +150,5 @@ public class ViewAndPayChargesPage extends JFrame {
         }
 
         return 0;
-    }
-
-    private void styleButton(JButton button, Color color) {
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
     }
 }

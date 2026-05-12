@@ -4,31 +4,22 @@ import java.util.ArrayList;
 
 public class ViewArrivalSchedulePage extends JFrame {
 
-    private User user;
-
     public ViewArrivalSchedulePage(User user) {
 
-        this.user = user;
+        UIHelper.setupFrame(this, "View Arrival Schedule", 1050, 600);
 
-        setTitle("View Arrival Schedule");
-        setSize(950, 450);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        mainPanel.setBackground(backgroundColor);
-
-        JLabel title = new JLabel(
-                "Arrival Schedule",
-                SwingConstants.CENTER
+        JLabel title = UIHelper.createTitle("Arrival Schedule");
+        JLabel subtitle = UIHelper.createSubtitle(
+                "Approved arrivals and current docking state"
         );
 
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 24));
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
 
         String[] columns = {
                 "Ship ID",
@@ -39,43 +30,28 @@ public class ViewArrivalSchedulePage extends JFrame {
                 "Docked"
         };
 
-        PortEntryRequestService portService =
-                new PortEntryRequestService();
-
-        ShipService shipService =
-                new ShipService();
-
-        AuthService authService =
-                new AuthService();
-
-        DockService dockService =
-                new DockService();
+        PortEntryRequestService portService = new PortEntryRequestService();
+        ShipService shipService = new ShipService();
+        AuthService authService = new AuthService();
+        DockService dockService = new DockService();
 
         ArrayList<PortEntryRequests> requests =
                 portService.getApprovedRequests();
 
-        Object[][] data =
-                new Object[requests.size()][6];
+        Object[][] data = new Object[requests.size()][6];
 
         for (int i = 0; i < requests.size(); i++) {
 
-            PortEntryRequests request =
-                    requests.get(i);
+            PortEntryRequests request = requests.get(i);
 
-            Ship ship =
-                    shipService.getShipById(
-                            request.getShipId()
-                    );
+            Ship ship = shipService.getShipById(request.getShipId());
+            User captain = authService.getUserById(request.getCaptainId());
 
-            User captain =
-                    authService.getUserById(
-                            request.getCaptainId()
-                    );
+            if (ship == null || captain == null) {
+                continue;
+            }
 
-            boolean docked =
-                    dockService.isShipDocked(
-                            ship.getId()
-                    );
+            boolean docked = dockService.isShipDocked(ship.getId());
 
             data[i][0] = ship.getShipCode();
             data[i][1] = captain.getUsername();
@@ -85,50 +61,30 @@ public class ViewArrivalSchedulePage extends JFrame {
             data[i][5] = docked ? "Yes" : "No";
         }
 
-        JTable arrivalTable =
-                new JTable(data, columns);
+        JTable arrivalTable = new JTable(data, columns);
 
-        JScrollPane scrollPane =
-                new JScrollPane(arrivalTable);
+        JScrollPane scrollPane = UIHelper.styleTable(arrivalTable);
 
-        JButton backButton =
-                new JButton("Back");
+        JPanel contentPanel = UIHelper.createCardPanel(new BorderLayout());
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
 
-        styleButton(backButton, buttonColor);
+        JButton backButton = UIHelper.createBackButton();
 
-        JPanel bottomPanel =
-                new JPanel();
-
-        bottomPanel.setBackground(backgroundColor);
-
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
         bottomPanel.add(backButton);
 
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
 
         backButton.addActionListener(e -> {
-
             dispose();
-
             new PortAuthorityDashboard(user);
         });
 
         setVisible(true);
-    }
-
-    private void styleButton(JButton button,
-                             Color color) {
-
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(
-                new Font("Arial",
-                        Font.BOLD,
-                        14)
-        );
     }
 }

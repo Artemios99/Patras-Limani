@@ -1,31 +1,83 @@
+import com.toedter.calendar.JDateChooser;
+
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class RequestDockingPage extends JFrame {
 
     private User user;
+
     private JComboBox<Ship> shipBox;
-    private JTextField requestedDateField;
+    private JDateChooser requestedDateChooser;
 
     public RequestDockingPage(User user) {
 
         this.user = user;
 
-        setTitle("Request Docking");
-        setSize(550, 350);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        UIHelper.setupFrame(
+                this,
+                "Request Docking",
+                900,
+                650
+        );
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        panel.setBackground(backgroundColor);
+        JPanel headerPanel =
+                new JPanel(new BorderLayout());
 
-        ShipService shipService = new ShipService();
-        ArrayList<Ship> ships = shipService.getShipsByCaptainId(user.getId());
+        headerPanel.setBackground(UIHelper.BACKGROUND);
+
+        JLabel title =
+                UIHelper.createTitle("Docking Request");
+
+        JLabel subtitle =
+                UIHelper.createSubtitle(
+                        "Request a docking position for your ship"
+                );
+
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
+
+        JPanel cardPanel =
+                UIHelper.createCardPanel(
+                        new BorderLayout(25, 25)
+                );
+
+        JPanel infoPanel =
+                new JPanel(new GridLayout(3, 1, 15, 15));
+
+        infoPanel.setBackground(UIHelper.CARD);
+
+        infoPanel.add(createInfoCard(
+                "Dock Request",
+                "Select the ship that needs docking"
+        ));
+
+        infoPanel.add(createInfoCard(
+                "Port Authority",
+                "Wait for approval before assignment"
+        ));
+
+        infoPanel.add(createInfoCard(
+                "Dock Worker",
+                "Dock worker confirms the ship is docked"
+        ));
+
+        JPanel formPanel =
+                new JPanel(new GridBagLayout());
+
+        formPanel.setBackground(UIHelper.CARD);
+
+        ShipService shipService =
+                new ShipService();
+
+        ArrayList<Ship> ships =
+                shipService.getShipsByCaptainId(
+                        user.getId()
+                );
 
         shipBox = new JComboBox<>();
 
@@ -33,24 +85,97 @@ public class RequestDockingPage extends JFrame {
             shipBox.addItem(ship);
         }
 
-        requestedDateField = new JTextField();
+        shipBox.setPreferredSize(
+                new Dimension(320, 45)
+        );
 
-        JButton backButton = new JButton("Back");
-        JButton requestButton = new JButton("Request Docking");
+        shipBox.setFont(UIHelper.TABLE_FONT);
 
-        styleButton(backButton, buttonColor);
-        styleButton(requestButton, buttonColor);
+        requestedDateChooser = new JDateChooser();
 
-        addLabel(panel, "Select Ship:");
-        panel.add(shipBox);
+        requestedDateChooser.setDateFormatString(
+                "yyyy-MM-dd"
+        );
 
-        addLabel(panel, "Requested Date:");
-        panel.add(requestedDateField);
+        requestedDateChooser.setPreferredSize(
+                new Dimension(320, 45)
+        );
 
-        panel.add(backButton);
-        panel.add(requestButton);
+        requestedDateChooser.setFont(
+                UIHelper.TABLE_FONT
+        );
 
-        add(panel);
+        requestedDateChooser
+                .getDateEditor()
+                .getUiComponent()
+                .setFont(UIHelper.TABLE_FONT);
+
+        GridBagConstraints gbc =
+                new GridBagConstraints();
+
+        gbc.insets =
+                new Insets(18, 18, 18, 18);
+
+        gbc.fill =
+                GridBagConstraints.HORIZONTAL;
+
+        gbc.anchor =
+                GridBagConstraints.WEST;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        formPanel.add(
+                UIHelper.createLabel("Select Ship"),
+                gbc
+        );
+
+        gbc.gridx = 1;
+
+        formPanel.add(shipBox, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+
+        formPanel.add(
+                UIHelper.createLabel("Requested Date"),
+                gbc
+        );
+
+        gbc.gridx = 1;
+
+        formPanel.add(requestedDateChooser, gbc);
+
+        JButton backButton =
+                UIHelper.createBackButton();
+
+        JButton requestButton =
+                UIHelper.createButton(
+                        "Submit Request"
+                );
+
+        JPanel bottomPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT,
+                                15,
+                                0
+                        )
+                );
+
+        bottomPanel.setBackground(UIHelper.CARD);
+
+        bottomPanel.add(backButton);
+        bottomPanel.add(requestButton);
+
+        cardPanel.add(infoPanel, BorderLayout.WEST);
+        cardPanel.add(formPanel, BorderLayout.CENTER);
+        cardPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(cardPanel, BorderLayout.CENTER);
+
+        add(mainPanel);
 
         requestButton.addActionListener(e -> submitRequest());
 
@@ -62,71 +187,127 @@ public class RequestDockingPage extends JFrame {
         setVisible(true);
     }
 
+    private JPanel createInfoCard(
+            String title,
+            String description
+    ) {
+
+        JPanel panel =
+                new JPanel(new BorderLayout());
+
+        panel.setBackground(
+                new Color(25, 50, 80)
+        );
+
+        panel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        15,
+                        15,
+                        15,
+                        15
+                )
+        );
+
+        JLabel titleLabel =
+                new JLabel(title);
+
+        titleLabel.setForeground(Color.WHITE);
+
+        titleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        16
+                )
+        );
+
+        JLabel descLabel =
+                new JLabel(
+                        "<html>"
+                                + description
+                                + "</html>"
+                );
+
+        descLabel.setForeground(
+                new Color(210, 210, 210)
+        );
+
+        panel.add(titleLabel, BorderLayout.NORTH);
+        panel.add(descLabel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
     private void submitRequest() {
 
-        Ship selectedShip = (Ship) shipBox.getSelectedItem();
-        String requestedDate = requestedDateField.getText().trim();
+        Ship selectedShip =
+                (Ship) shipBox.getSelectedItem();
 
         if (selectedShip == null) {
+
             JOptionPane.showMessageDialog(
                     this,
                     "No ship found for this captain.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
+
             return;
         }
 
-        if (requestedDate.isEmpty()) {
+        if (requestedDateChooser.getDate() == null) {
+
             JOptionPane.showMessageDialog(
                     this,
-                    "Requested date cannot be empty.",
+                    "Please select a requested date.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
+
             return;
         }
 
-        DockingRequest request = new DockingRequest(
-                selectedShip.getId(),
-                user.getId(),
-                requestedDate,
-                "pending"
-        );
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("yyyy-MM-dd");
 
-        DockingRequestService service = new DockingRequestService();
+        String requestedDate =
+                sdf.format(
+                        requestedDateChooser.getDate()
+                );
 
-        boolean success = service.createRequest(request);
+        DockingRequest request =
+                new DockingRequest(
+                        selectedShip.getId(),
+                        user.getId(),
+                        requestedDate,
+                        "pending"
+                );
+
+        DockingRequestService service =
+                new DockingRequestService();
+
+        boolean success =
+                service.createRequest(request);
 
         if (success) {
+
             JOptionPane.showMessageDialog(
                     this,
                     "Docking request submitted successfully!"
             );
 
             dispose();
+
             new CaptainDashboard(user);
 
         } else {
+
             JOptionPane.showMessageDialog(
                     this,
-                    "Docking request failed.",
+                    "Docking request failed or already exists.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
         }
-    }
-
-    private void addLabel(JPanel panel, String text) {
-        JLabel label = new JLabel(text);
-        label.setForeground(Color.WHITE);
-        panel.add(label);
-    }
-
-    private void styleButton(JButton button, Color color) {
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
     }
 }

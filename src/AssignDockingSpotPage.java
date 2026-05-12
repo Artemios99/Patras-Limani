@@ -4,28 +4,25 @@ import java.util.ArrayList;
 
 public class AssignDockingSpotPage extends JFrame {
 
-    private User user;
     private JTable requestTable;
 
     public AssignDockingSpotPage(User user) {
 
-        this.user = user;
 
-        setTitle("Assign Docking Spot");
-        setSize(700, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        UIHelper.setupFrame(this, "Assign Docking Spot", 1000, 620);
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        mainPanel.setBackground(backgroundColor);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JLabel title = new JLabel("Assign Docking Spot", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 24));
+        JLabel title = UIHelper.createTitle("Assign Docking Spot");
+        JLabel subtitle = UIHelper.createSubtitle(
+                "Assign an available dock to an approved docking request"
+        );
+
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
 
         String[] columns = {
                 "Request ID",
@@ -56,30 +53,45 @@ public class AssignDockingSpotPage extends JFrame {
         }
 
         requestTable = new JTable(data, columns);
-        JScrollPane scrollPane = new JScrollPane(requestTable);
+        JScrollPane scrollPane = UIHelper.styleTable(requestTable);
 
-        JPanel bottomPanel = new JPanel(new GridLayout(2, 2, 10, 10));
-        bottomPanel.setBackground(backgroundColor);
+        JPanel contentPanel = UIHelper.createCardPanel(new BorderLayout(18, 18));
 
-        JLabel dockLabel = new JLabel("Dock Number:");
-        dockLabel.setForeground(Color.WHITE);
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(UIHelper.CARD);
 
-        JTextField dockField = new JTextField();
+        JLabel dockLabel = UIHelper.createLabel("Dock Number");
+        JTextField dockField = UIHelper.createTextField();
 
-        JButton assignButton = new JButton("Assign Dock");
-        JButton backButton = new JButton("Back");
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        styleButton(assignButton, buttonColor);
-        styleButton(backButton, buttonColor);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        formPanel.add(dockLabel, gbc);
 
-        bottomPanel.add(dockLabel);
-        bottomPanel.add(dockField);
-        bottomPanel.add(backButton);
-        bottomPanel.add(assignButton);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        formPanel.add(dockField, gbc);
 
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        JButton backButton = UIHelper.createBackButton();
+        JButton assignButton = UIHelper.createButton("Assign Dock");
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        buttonPanel.setBackground(UIHelper.CARD);
+
+        buttonPanel.add(backButton);
+        buttonPanel.add(assignButton);
+
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+        contentPanel.add(formPanel, BorderLayout.NORTH);
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
 
         add(mainPanel);
 
@@ -148,13 +160,5 @@ public class AssignDockingSpotPage extends JFrame {
         });
 
         setVisible(true);
-    }
-
-    private void styleButton(JButton button, Color color) {
-
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
     }
 }

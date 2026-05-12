@@ -4,27 +4,22 @@ import java.util.ArrayList;
 
 public class ViewDockingAssignmentsPage extends JFrame {
 
-    private User user;
-
     public ViewDockingAssignmentsPage(User user) {
 
-        this.user = user;
+        UIHelper.setupFrame(this, "View Docking Assignments", 1000, 550);
 
-        setTitle("View Docking Assignments");
-        setSize(850, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        mainPanel.setBackground(backgroundColor);
+        JLabel title = UIHelper.createTitle("Docking Assignments");
+        JLabel subtitle = UIHelper.createSubtitle(
+                "View all active dock assignments and ship information"
+        );
 
-        JLabel title = new JLabel("Docking Assignments", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 24));
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
 
         String[] columns = {
                 "Dock Number",
@@ -66,15 +61,19 @@ public class ViewDockingAssignmentsPage extends JFrame {
 
         JTable table = new JTable(data, columns);
 
-        JButton backButton = new JButton("Back");
-        styleButton(backButton, buttonColor);
+        JScrollPane scrollPane = UIHelper.styleTable(table);
 
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setBackground(backgroundColor);
+        JPanel contentPanel = UIHelper.createCardPanel(new BorderLayout());
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+
+        JButton backButton = UIHelper.createBackButton();
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
         bottomPanel.add(backButton);
 
-        mainPanel.add(title, BorderLayout.NORTH);
-        mainPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
@@ -85,12 +84,5 @@ public class ViewDockingAssignmentsPage extends JFrame {
         });
 
         setVisible(true);
-    }
-
-    private void styleButton(JButton button, Color color) {
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
     }
 }

@@ -4,67 +4,34 @@ import java.util.ArrayList;
 
 public class ViewDockStatusPage extends JFrame {
 
-    private User user;
-
     public ViewDockStatusPage(User user) {
 
-        this.user = user;
+        UIHelper.setupFrame(this, "View Dock Status", 1050, 720);
 
-        setTitle("View Dock Status");
-        setSize(900, 650);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBackground(backgroundColor);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JLabel title = UIHelper.createTitle("Dock Status Overview");
+        JLabel subtitle = UIHelper.createSubtitle(
+                "Monitor all dock positions and current ship assignments"
+        );
 
-        JLabel title = new JLabel("Dock Status Overview", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 26));
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
 
-        JPanel legendPanel = new JPanel();
-        legendPanel.setBackground(backgroundColor);
+        JPanel legendPanel = UIHelper.createCardPanel(
+                new FlowLayout(FlowLayout.CENTER, 30, 8)
+        );
 
-        JPanel availableBox = new JPanel();
-        availableBox.setBackground(Color.WHITE);
-        availableBox.setPreferredSize(new Dimension(20, 20));
+        legendPanel.add(createLegendItem(Color.WHITE, "Available"));
+        legendPanel.add(createLegendItem(Color.ORANGE, "Assigned"));
+        legendPanel.add(createLegendItem(Color.RED, "Docked"));
 
-        JLabel availableLabel = new JLabel("Available");
-        availableLabel.setForeground(Color.WHITE);
-
-        JPanel assignedBox = new JPanel();
-        assignedBox.setBackground(Color.ORANGE);
-        assignedBox.setPreferredSize(new Dimension(20, 20));
-
-        JLabel assignedLabel = new JLabel("Assigned");
-        assignedLabel.setForeground(Color.WHITE);
-
-        JPanel dockedBox = new JPanel();
-        dockedBox.setBackground(Color.RED);
-        dockedBox.setPreferredSize(new Dimension(20, 20));
-
-        JLabel dockedLabel = new JLabel("Docked");
-        dockedLabel.setForeground(Color.WHITE);
-
-        legendPanel.add(availableBox);
-        legendPanel.add(availableLabel);
-
-        legendPanel.add(Box.createHorizontalStrut(25));
-
-        legendPanel.add(assignedBox);
-        legendPanel.add(assignedLabel);
-
-        legendPanel.add(Box.createHorizontalStrut(25));
-
-        legendPanel.add(dockedBox);
-        legendPanel.add(dockedLabel);
-
-        JPanel dockGrid = new JPanel(new GridLayout(5, 6, 15, 15));
-        dockGrid.setBackground(backgroundColor);
+        JPanel dockGrid = UIHelper.createCardPanel(
+                new GridLayout(5, 6, 15, 15)
+        );
 
         DockService dockService = new DockService();
         ShipService shipService = new ShipService();
@@ -73,25 +40,16 @@ public class ViewDockStatusPage extends JFrame {
 
         for (Dock dock : docks) {
 
-            JButton dockButton = new JButton("Dock " + dock.getNumber());
-            dockButton.setFont(new Font("Arial", Font.BOLD, 14));
-
-            if (dock.getStatus().equals("assigned")) {
-                dockButton.setBackground(Color.ORANGE);
-                dockButton.setForeground(Color.BLACK);
-            } else if (dock.getStatus().equals("docked")) {
-                dockButton.setBackground(Color.RED);
-                dockButton.setForeground(Color.WHITE);
-            } else {
-                dockButton.setBackground(Color.WHITE);
-                dockButton.setForeground(Color.BLACK);
-            }
+            JButton dockButton = createDockButton(dock);
 
             dockButton.addActionListener(e -> {
 
-                if (dock.getStatus().equals("assigned") || dock.getStatus().equals("docked")) {
+                if (dock.getStatus().equals("assigned")
+                        || dock.getStatus().equals("docked")) {
 
-                    Ship ship = shipService.getShipById(dock.getCurrentShipId());
+                    Ship ship = shipService.getShipById(
+                            dock.getCurrentShipId()
+                    );
 
                     if (ship != null) {
                         JOptionPane.showMessageDialog(
@@ -104,32 +62,34 @@ public class ViewDockStatusPage extends JFrame {
                                         "Capacity: " + ship.getCapacity()
                         );
                     } else {
-                        JOptionPane.showMessageDialog(this, "Ship not found.");
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Ship not found.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
                     }
 
                 } else {
-                    JOptionPane.showMessageDialog(this, "Dock is available.");
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Dock " + dock.getNumber() + " is available."
+                    );
                 }
             });
 
             dockGrid.add(dockButton);
         }
 
-        JButton backButton = new JButton("Back");
-        styleButton(backButton, buttonColor);
+        JButton backButton = UIHelper.createBackButton();
 
-        backButton.addActionListener(e -> {
-            dispose();
-            new PortAuthorityDashboard(user);
-        });
-
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setBackground(backgroundColor);
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
         bottomPanel.add(backButton);
 
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(backgroundColor);
-        topPanel.add(title, BorderLayout.NORTH);
+        JPanel topPanel = new JPanel(new BorderLayout(15, 15));
+        topPanel.setBackground(UIHelper.BACKGROUND);
+        topPanel.add(headerPanel, BorderLayout.NORTH);
         topPanel.add(legendPanel, BorderLayout.SOUTH);
 
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -138,13 +98,56 @@ public class ViewDockStatusPage extends JFrame {
 
         add(mainPanel);
 
+        backButton.addActionListener(e -> {
+            dispose();
+            new PortAuthorityDashboard(user);
+        });
+
         setVisible(true);
     }
 
-    private void styleButton(JButton button, Color color) {
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
+    private JButton createDockButton(Dock dock) {
+
+        JButton button = new JButton(
+                "<html><center><b>Dock " + dock.getNumber() + "</b><br>" +
+                        "<span style='font-size:10px;'>" +
+                        dock.getStatus().toUpperCase() +
+                        "</span></center></html>"
+        );
+
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        if (dock.getStatus().equals("assigned")) {
+            button.setBackground(Color.ORANGE);
+            button.setForeground(Color.BLACK);
+        } else if (dock.getStatus().equals("docked")) {
+            button.setBackground(Color.RED);
+            button.setForeground(Color.WHITE);
+        } else {
+            button.setBackground(Color.WHITE);
+            button.setForeground(Color.BLACK);
+        }
+
+        return button;
+    }
+
+    private JPanel createLegendItem(Color color, String text) {
+
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        panel.setBackground(UIHelper.CARD);
+
+        JPanel box = new JPanel();
+        box.setBackground(color);
+        box.setPreferredSize(new Dimension(22, 22));
+
+        JLabel label = UIHelper.createLabel(text);
+
+        panel.add(box);
+        panel.add(label);
+
+        return panel;
     }
 }

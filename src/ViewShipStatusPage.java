@@ -4,27 +4,24 @@ import java.util.ArrayList;
 
 public class ViewShipStatusPage extends JFrame {
 
-    private User user;
 
     public ViewShipStatusPage(User user) {
 
-        this.user = user;
 
-        setTitle("View Ship Status");
-        setSize(800, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        UIHelper.setupFrame(this, "View Ship Status", 950, 550);
 
-        Color backgroundColor = new Color(10, 35, 66);
-        Color buttonColor = new Color(0, 119, 182);
+        JPanel mainPanel = UIHelper.createMainPanel();
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        mainPanel.setBackground(backgroundColor);
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(UIHelper.BACKGROUND);
 
-        JLabel title = new JLabel("Ship Status", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Arial", Font.BOLD, 24));
+        JLabel title = UIHelper.createTitle("Ship Status");
+        JLabel subtitle = UIHelper.createSubtitle(
+                "Track port entry and docking request statuses"
+        );
+
+        headerPanel.add(title, BorderLayout.NORTH);
+        headerPanel.add(subtitle, BorderLayout.SOUTH);
 
         String[] columns = {
                 "Ship Code",
@@ -44,52 +41,34 @@ public class ViewShipStatusPage extends JFrame {
         for (int i = 0; i < ships.size(); i++) {
 
             Ship ship = ships.get(i);
-            
+
             data[i][0] = ship.getShipCode();
             data[i][1] = ship.getName();
             data[i][2] = ship.getType();
-
-            data[i][3] =
-                    shipService.getLatestPortEntryStatus(ship.getId());
-
-            data[i][4] =
-                    shipService.getLatestDockingStatus(ship.getId());
+            data[i][3] = shipService.getLatestPortEntryStatus(ship.getId());
+            data[i][4] = shipService.getLatestDockingStatus(ship.getId());
         }
 
         JTable table = new JTable(data, columns);
+        JScrollPane scrollPane = UIHelper.styleTable(table);
 
-        JScrollPane scrollPane = new JScrollPane(table);
+        JButton backButton = UIHelper.createBackButton();
 
-        JButton backButton = new JButton("Back");
-
-        styleButton(backButton, buttonColor);
-
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setBackground(backgroundColor);
-
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UIHelper.BACKGROUND);
         bottomPanel.add(backButton);
 
-        mainPanel.add(title, BorderLayout.NORTH);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
 
         backButton.addActionListener(e -> {
-
             dispose();
-
             new CaptainDashboard(user);
         });
 
         setVisible(true);
-    }
-
-    private void styleButton(JButton button, Color color) {
-
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
     }
 }
