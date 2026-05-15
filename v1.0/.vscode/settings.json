@@ -1,0 +1,11 @@
+{
+    "java.project.sourcePaths": [
+        "src"
+    ],
+    "java.project.referencedLibraries": [
+        "lib\\sqlite-jdbc-3.53.0.0.jar",
+        "c:\\Users\\artem\\Desktop\\Τεχνολογια Λογισμικου\\Patras-limani ui\\Patras-Limani\\lib\\sqlite-jdbc-3.53.0.0.jar",
+        "lib/flatlaf-3.5.4.jar",
+        "lib/jcalendar-1.4.jar"
+    ]
+}
